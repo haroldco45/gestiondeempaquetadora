@@ -3,127 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Empaquetadora - Distrileco</title>
+    <title>Analizador Distrileco - Vibras Positivas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --primary: #1e40af; --secondary: #facc15; }
-        .bg-distrileco { background-color: var(--primary); }
-        .btn-vibras { background-color: var(--secondary); color: #000; font-weight: bold; }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen pb-20">
+<body class="bg-slate-50 min-h-screen pb-20">
 
-    <header class="bg-distrileco text-white p-4 shadow-lg flex justify-between items-center">
-        <div>
-            <h1 class="text-xl font-bold italic">DISTRILECO CAUCASIA</h1>
-            <p class="text-xs">Gestión de Empaquetadora de Arroz</p>
-        </div>
-        <i class="fas fa-boxes text-2xl"></i>
+    <header class="bg-blue-900 text-white p-6 shadow-xl text-center">
+        <h1 class="text-2xl font-black italic">DISTRILECO CAUCASIA</h1>
+        <p class="text-xs opacity-70 uppercase tracking-widest">Gestión Inteligente de Empaquetadora</p>
     </header>
 
-    <main class="p-4 max-w-lg mx-auto">
-        <form id="formVentas" class="bg-white p-6 rounded-xl shadow-md space-y-4">
-            <h2 class="text-center font-bold text-gray-700 border-b pb-2">REGISTRO DE VENTA</h2>
+    <main class="p-4 max-w-5xl mx-auto space-y-6">
+        
+        <div class="bg-white p-8 rounded-3xl shadow-sm border-2 border-dashed border-blue-200 text-center">
+            <h2 class="text-xl font-bold text-blue-900 mb-2">📥 Paso 1: Sube tu archivo Excel</h2>
+            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+        </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold uppercase">Mes</label>
-                    <select name="mes" class="w-full border p-2 rounded bg-gray-50">
-                        <option>Enero</option><option>Febrero</option><option>Marzo</option>
-                        <option>Abril</option><option>Mayo</option><option>Junio</option>
-                        <option>Julio</option><option>Agosto</option><option>Septiembre</option>
-                        <option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase">Fecha</label>
-                    <input type="date" name="fecha" id="fecha_actual" class="w-full border p-2 rounded bg-gray-50">
-                </div>
+        <div id="seccionConsulta" class="bg-white p-6 rounded-3xl shadow-lg border-t-4 border-yellow-400 hidden">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 italic">🔍 ¿Qué quieres saber hoy?</h2>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="consultar('producto')" class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold hover:bg-blue-200 transition">Kilos por Producto</button>
+                <button onclick="consultar('mes')" class="bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold hover:bg-green-200 transition">Kilos por Mes</button>
+                <button onclick="consultar('vendedor')" class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-bold hover:bg-purple-200 transition">Kilos por Vendedor</button>
             </div>
+            
+            <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="Escribe un nombre, producto o mes..." class="w-full p-4 border-2 border-gray-100 rounded-2xl focus:border-blue-500 outline-none shadow-inner">
+        </div>
 
-            <div class="space-y-3">
-                <input type="text" name="nomvendedor" placeholder="Nombre del Vendedor" class="w-full border p-2 rounded" required>
-                <input type="text" name="ciudad" placeholder="Ciudad / Municipio" class="w-full border p-2 rounded" value="Caucasia">
-                
-                <div class="border-t pt-2 mt-2">
-                    <label class="block text-xs font-bold text-blue-800">DETALLES DEL PRODUCTO</label>
-                    <input type="text" name="referencia_proveedor" placeholder="Ref. Proveedor" class="w-full border p-2 rounded mt-1">
-                    <input type="text" name="referencia" placeholder="Referencia Interna" class="w-full border p-2 rounded mt-2">
-                    <select name="nombre_producto" class="w-full border p-2 rounded mt-2 font-bold">
-                        <option value="">Seleccione Producto...</option>
-                        <option value="SUPERARROZ">SUPERARROZ</option>
-                        <option value="VISTAHERMOSA">VISTAHERMOSA</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <div>
-                        <label class="block text-[10px] font-bold">CANTIDAD</label>
-                        <input type="number" id="cantidad" name="cantidad" placeholder="Cant." class="w-full border p-2 rounded" oninput="calcularKilos()">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold">PESO (KG)</label>
-                        <input type="number" step="0.01" id="peso" name="PESO" placeholder="Kg x Uni" class="w-full border p-2 rounded" oninput="calcularKilos()">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold">VALOR ($)</label>
-                        <input type="number" name="valor" placeholder="Total $" class="w-full border p-2 rounded text-green-700 font-bold">
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                    <p class="text-sm font-bold text-blue-900 italic">Total Kilos a Despachar: <span id="totalKilos" class="text-lg">0.00</span> Kg</p>
-                </div>
-                
-                <input type="text" name="numero" placeholder="Número de Factura / Pedido" class="w-full border p-2 rounded">
+        <div id="tablaResultados" class="bg-white rounded-3xl shadow-sm overflow-hidden hidden">
+            <div id="tituloTabla" class="bg-gray-800 text-white p-4 font-bold uppercase text-sm text-center">Resultados</div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50 text-[10px] font-black text-gray-500 uppercase">
+                            <th class="p-4 border-b" id="columnaNombre">Categoría</th>
+                            <th class="p-4 border-b text-right">Kilos Totales (KG)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla" class="text-gray-700 font-bold">
+                        </tbody>
+                </table>
             </div>
+        </div>
 
-            <button type="submit" class="w-full btn-vibras py-3 rounded-lg shadow hover:bg-yellow-500 transition-all uppercase">
-                <i class="fab fa-whatsapp mr-2"></i> Reportar Venta
-            </button>
-        </form>
     </main>
 
-    <footer class="fixed bottom-0 w-full bg-white border-t p-2 text-center text-[10px] text-gray-500">
+    <footer class="fixed bottom-0 w-full bg-white border-t p-3 text-center text-[10px] text-gray-500">
         <p class="font-bold text-blue-900">App desarrollada por Vibras Positivas (3117700431) - Derechos de Autor</p>
-        <p>© 2026 Distrileco Caucasia - Gestión de Ventas</p>
     </footer>
 
     <script>
-        // Establecer fecha de hoy automáticamente
-        document.getElementById('fecha_actual').valueAsDate = new Date();
+        let datosGlobales = [];
 
-        // Función para calcular kilos en tiempo real
-        function calcularKilos() {
-            const cant = document.getElementById('cantidad').value || 0;
-            const peso = document.getElementById('peso').value || 0;
-            const total = (parseFloat(cant) * parseFloat(peso)).toFixed(2);
-            document.getElementById('totalKilos').innerText = total;
+        document.getElementById('upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+                datosGlobales = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                document.getElementById('seccionConsulta').classList.remove('hidden');
+                alert("Archivo cargado con éxito. Elige qué quieres consultar.");
+            };
+            reader.readAsBinaryString(file);
+        });
+
+        function consultar(tipo) {
+            document.getElementById('tablaResultados').classList.remove('hidden');
+            const titulo = document.getElementById('tituloTabla');
+            const colNombre = document.getElementById('columnaNombre');
+            const tbody = document.getElementById('cuerpoTabla');
+            tbody.innerHTML = "";
+
+            let resumen = {};
+            let columnaClave = "";
+
+            if(tipo === 'producto') { 
+                titulo.innerText = "RESUMEN POR PRODUCTO"; colNombre.innerText = "PRODUCTO"; columnaClave = 'nombre_producto'; 
+            }
+            if(tipo === 'mes') { 
+                titulo.innerText = "RESUMEN POR MES"; colNombre.innerText = "MES (AÑO/MES)"; columnaClave = 'mes'; 
+            }
+            if(tipo === 'vendedor') { 
+                titulo.innerText = "RESUMEN POR VENDEDOR"; colNombre.innerText = "VENDEDOR"; columnaClave = 'nomvendedor'; 
+            }
+
+            datosGlobales.forEach(row => {
+                const clave = row[columnaClave] || "SIN DATO";
+                const kilos = (parseFloat(row.cantidad) || 0) * (parseFloat(row.PESO) || 0);
+                resumen[clave] = (resumen[clave] || 0) + kilos;
+            });
+
+            // Ordenar de mayor a menor
+            const ordenado = Object.entries(resumen).sort((a,b) => b[1] - a[1]);
+
+            ordenado.forEach(([nombre, kilos]) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-blue-50 border-b border-gray-50">
+                        <td class="p-4 text-sm">${nombre}</td>
+                        <td class="p-4 text-right font-black text-blue-900">${kilos.toLocaleString()} KG</td>
+                    </tr>
+                `;
+            });
         }
 
-        // Manejo del formulario
-        document.getElementById('formVentas').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            const totalK = (data.cantidad * data.PESO).toFixed(2);
-            
-            // Mensaje para WhatsApp
-            const texto = `📦 *NUEVA VENTA DISTRILECO*\n` +
-                          `--------------------------\n` +
-                          `👤 *Vendedor:* ${data.nomvendedor}\n` +
-                          `🍚 *Producto:* ${data.nombre_producto}\n` +
-                          `🔢 *Cant:* ${data.cantidad} und\n` +
-                          `⚖️ *Kilos:* ${totalK} Kg\n` +
-                          `💰 *Valor:* $${data.valor}\n` +
-                          `📍 *Ciudad:* ${data.ciudad}\n` +
-                          `--------------------------\n` +
-                          `_Enviado desde Gestión de Empaquetadora_`;
-            
-            const encodedText = encodeURIComponent(texto);
-            window.open(`https://wa.me/3117700431?text=${encodedText}`, '_blank');
-        });
+        function filtrarTabla() {
+            const input = document.getElementById("buscador").value.toUpperCase();
+            const rows = document.getElementById("cuerpoTabla").getElementsByTagName("tr");
+            for (let i = 0; i < rows.length; i++) {
+                const txtValue = rows[i].textContent || rows[i].innerText;
+                rows[i].style.display = txtValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+            }
+        }
     </script>
 </body>
 </html>
