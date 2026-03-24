@@ -3,49 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Comparativo - Distrileco</title>
+    <title>Dashboard Inteligente - Distrileco</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-slate-100 min-h-screen pb-24 font-sans text-gray-800">
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center">
-        <h1 class="text-2xl font-black italic tracking-tighter">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] uppercase font-bold tracking-widest opacity-75 underline decoration-yellow-400">LECTURA AUTOMÁTICA: HOJA "DATA"</p>
+        <h1 class="text-2xl font-black italic tracking-tighter uppercase">DISTRILECO CAUCASIA</h1>
+        <p class="text-[10px] font-bold tracking-widest opacity-75 italic underline decoration-yellow-400">MEMORIA LOCAL ACTIVA: HOJA DATA</p>
     </header>
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 ACTUALIZAR BASE DE DATOS EXCEL</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
-            <p id="status" class="mt-2 text-xs font-black text-blue-600 italic uppercase"></p>
+            <p id="status" class="mt-2 text-xs font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg inline-block"></p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div id="seccionFiltros" class="hidden lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400">
-                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase">Panel de Control</h3>
+            <div id="seccionFiltros" class="hidden lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400 h-fit">
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center text-blue-800">Panel de Control</h3>
                 
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
-                    <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-xs outline-none border border-gray-100"></select>
+                    <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Comparar Meses (Ctrl + Clic)</label>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl + Clic)</label>
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-48 outline-none focus:border-blue-500 shadow-inner"></select>
                 </div>
 
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Producto</label>
-                    <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-xs outline-none border border-gray-100"></select>
+                    <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
+
+                <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px]">
+                    <i class="fab fa-whatsapp mr-1 text-lg"></i> Enviar Reporte a Harold
+                </button>
             </div>
 
             <div id="seccionGrafico" class="hidden lg:col-span-3 space-y-6">
-                <div class="bg-blue-800 text-white p-8 rounded-[2.5rem] shadow-2xl text-center">
-                    <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest">Total Kilos Despachados</p>
-                    <h2 id="totalDisplay" class="text-5xl font-black tracking-tighter italic">0.00 Kg</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center">
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Kilos en Selección</p>
+                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic">0.00 Kg</h2>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter"><i class="fas fa-lightbulb mr-1"></i> Análisis Inteligente:</h4>
+                        <div id="analisisNotas" class="text-xs space-y-1 font-bold text-gray-600 italic">
+                            <p id="mejorVendedor">Cargando...</p>
+                            <p id="mejorCiudad">Cargando...</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
@@ -56,36 +71,41 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">App desarrollada por Vibras Positivas (3117700431)</p>
     </footer>
 
     <script>
-        let dataH1 = [];
+        let baseDatos = [];
         let chartInstance = null;
+
+        // AL CARGAR LA PÁGINA: Intentar leer de LocalStorage
+        window.onload = function() {
+            const savedData = localStorage.getItem('distrileco_data');
+            if(savedData) {
+                baseDatos = JSON.parse(savedData);
+                document.getElementById('status').innerText = "✅ DATOS RECUPERADOS DE MEMORIA (" + baseDatos.length + " LÍNEAS)";
+                activarDashboard();
+            }
+        };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "🔍 Buscando hoja 'data'...";
-            
+            status.innerText = "⏳ Procesando archivo...";
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    
-                    // BUSCAR LA HOJA LLAMADA "DATA" EN CUALQUIER POSICIÓN
                     const nombreHoja = workbook.SheetNames.find(n => n.toLowerCase().trim() === 'data');
-                    
                     if(!nombreHoja) {
-                        status.innerText = "❌ ERROR: NO ENCUENTRO LA HOJA LLAMADA 'data'.";
+                        status.innerText = "❌ ERROR: NO ENCUENTRO HOJA 'DATA'.";
                         return;
                     }
-
                     const sheet = workbook.Sheets[nombreHoja];
                     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                     const headerRowIndex = rows.findIndex(r => r.some(c => c?.toString().toLowerCase().includes('cantidad')));
                     const rawJson = XLSX.utils.sheet_to_json(sheet, { range: headerRowIndex > -1 ? headerRowIndex : 0 });
 
-                    dataH1 = rawJson.map(f => {
+                    baseDatos = rawJson.map(f => {
                         let n = {};
                         for (let k in f) {
                             let cleanK = k.toString().toLowerCase().trim().replace(/\s+/g, '');
@@ -94,27 +114,32 @@
                         return n;
                     });
 
-                    status.innerText = "✅ HOJA 'DATA' ENCONTRADA: " + dataH1.length + " LÍNEAS";
-                    llenarCombos();
-                    document.getElementById('seccionFiltros').classList.remove('hidden');
-                    document.getElementById('seccionGrafico').classList.remove('hidden');
-                    calcular();
+                    // GUARDAR EN MEMORIA LOCAL
+                    localStorage.setItem('distrileco_data', JSON.stringify(baseDatos));
+
+                    status.innerText = "✅ HOJA 'DATA' CARGADA Y GUARDADA: " + baseDatos.length + " LÍNEAS";
+                    activarDashboard();
                 } catch (err) { status.innerText = "❌ Error al procesar archivo."; }
             };
             reader.readAsBinaryString(e.target.files[0]);
         });
 
+        function activarDashboard() {
+            llenarCombos();
+            document.getElementById('seccionFiltros').classList.remove('hidden');
+            document.getElementById('seccionGrafico').classList.remove('hidden');
+            calcular();
+        }
+
         function llenarCombos() {
             const vSet = new Set(['-- TODOS --']);
             const mSet = new Set();
             const pSet = new Set(['-- TODOS --']);
-
-            dataH1.forEach(f => {
+            baseDatos.forEach(f => {
                 if(f.nomvendedor) vSet.add(f.nomvendedor.toString().trim());
                 if(f.mes) mSet.add(f.mes.toString().trim());
                 if(f.nombre_producto) pSet.add(f.nombre_producto.toString().trim());
             });
-
             poblar('selVendedor', vSet);
             poblar('selMes', mSet, true);
             poblar('selProducto', pSet);
@@ -138,24 +163,35 @@
 
             let total = 0;
             let datosGrafico = {};
+            let rankV = {}; let rankC = {};
+
             meses.forEach(m => datosGrafico[m] = 0);
 
-            dataH1.forEach(f => {
+            baseDatos.forEach(f => {
                 const mesF = f.mes?.toString().trim();
-                const matchV = (v === '-- TODOS --' || f.nomvendedor?.toString().trim() === v);
+                const vendF = f.nomvendedor?.toString().trim();
+                const ciudadF = f.ciudad?.toString().trim();
+                const matchV = (v === '-- TODOS --' || vendF === v);
                 const matchM = (meses.includes(mesF));
                 const matchP = (p === '-- TODOS --' || f.nombre_producto?.toString().trim() === p);
 
                 if(matchV && matchM && matchP) {
-                    const cant = parseFloat(f.cantidad) || 0;
-                    const peso = parseFloat(f.peso) || 0;
-                    const kilos = cant * peso;
+                    const kilos = (parseFloat(f.cantidad) || 0) * (parseFloat(f.peso) || 0);
                     total += kilos;
                     if(mesF) datosGrafico[mesF] += kilos;
+                    if(vendF) rankV[vendF] = (rankV[vendF] || 0) + kilos;
+                    if(ciudadF) rankC[ciudadF] = (rankC[ciudadF] || 0) + kilos;
                 }
             });
 
             document.getElementById('totalDisplay').innerText = total.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
+            
+            const mejorV = Object.entries(rankV).sort((a,b) => b[1] - a[1])[0];
+            const mejorC = Object.entries(rankC).sort((a,b) => b[1] - a[1])[0];
+
+            document.getElementById('mejorVendedor').innerHTML = mejorV ? `<span class="text-blue-900">Mejor Vendedor:</span> ${mejorV[0]}` : "N/A";
+            document.getElementById('mejorCiudad').innerHTML = mejorC ? `<span class="text-blue-900">Ciudad Líder:</span> ${mejorC[0]}` : "N/A";
+
             actualizarGrafico(datosGrafico);
         }
 
@@ -169,18 +205,32 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Kilos Vendidos',
+                        label: 'Kilos',
                         data: values,
                         backgroundColor: '#1e40af',
                         borderRadius: 12
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
+        }
+
+        function enviarWhatsApp() {
+            const total = document.getElementById('totalDisplay').innerText;
+            const mejorV = document.getElementById('mejorVendedor').innerText;
+            const mejorC = document.getElementById('mejorCiudad').innerText;
+            const meses = Array.from(document.getElementById('selMes').selectedOptions).map(opt => opt.value).join(', ');
+
+            const mensaje = `🍚 *REPORTE EMPAQUETADORA - DISTRILECO*\n` +
+                            `------------------------------\n` +
+                            `📊 *Total Kilos:* ${total}\n` +
+                            `🥇 *${mejorV}*\n` +
+                            `📍 *${mejorC}*\n` +
+                            `📅 *Meses:* ${meses}\n` +
+                            `------------------------------\n` +
+                            `_Generado por Vibras Positivas_`;
+
+            window.open(`https://wa.me/3117700431?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
     </script>
 </body>
