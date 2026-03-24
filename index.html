@@ -12,56 +12,51 @@
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center">
         <h1 class="text-2xl font-black italic tracking-tighter">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] uppercase font-bold tracking-widest opacity-75">Comparador de Ventas Mensuales</p>
+        <p class="text-[10px] uppercase font-bold tracking-widest opacity-75 underline decoration-yellow-400">LECTURA AUTOMÁTICA: HOJA "DATA"</p>
     </header>
 
-    <main class="p-4 max-w-5xl mx-auto space-y-6">
+    <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer">
-            <p id="status" class="mt-2 text-xs font-bold text-blue-600 italic uppercase"></p>
+            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
+            <p id="status" class="mt-2 text-xs font-black text-blue-600 italic uppercase"></p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div id="seccionFiltros" class="hidden space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400">
-                <h3 class="font-black text-blue-900 text-sm border-b pb-2">FILTROS DE ANÁLISIS</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div id="seccionFiltros" class="hidden lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400">
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase">Panel de Control</h3>
                 
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
-                    <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-sm"></select>
+                    <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Selección de Meses (Usa Ctrl/Cmd)</label>
-                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-lg font-bold text-sm h-32"></select>
-                    <p class="text-[9px] text-gray-400 mt-1">Selecciona uno o varios meses para comparar.</p>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Comparar Meses (Ctrl + Clic)</label>
+                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-48 outline-none focus:border-blue-500 shadow-inner"></select>
                 </div>
 
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Producto</label>
-                    <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-sm"></select>
+                    <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
             </div>
 
-            <div id="seccionGrafico" class="hidden lg:col-span-2 space-y-6">
-                <div class="bg-blue-800 text-white p-8 rounded-3xl shadow-2xl text-center">
-                    <p class="text-xs font-bold opacity-70 uppercase mb-1">Total Kilos en Selección</p>
-                    <h2 id="totalDisplay" class="text-5xl font-black tracking-tighter">0.00 Kg</h2>
+            <div id="seccionGrafico" class="hidden lg:col-span-3 space-y-6">
+                <div class="bg-blue-800 text-white p-8 rounded-[2.5rem] shadow-2xl text-center">
+                    <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest">Total Kilos Despachados</p>
+                    <h2 id="totalDisplay" class="text-5xl font-black tracking-tighter italic">0.00 Kg</h2>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <h3 class="text-center font-bold text-gray-500 text-xs uppercase mb-4 tracking-widest">Comparativa Mensual de Kilaje</h3>
-                    <canvas id="miGrafico" height="150"></canvas>
+                <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
+                    <canvas id="miGrafico" height="140"></canvas>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <footer class="fixed bottom-0 w-full bg-white/90 backdrop-blur-sm border-t p-4 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">
-            App desarrollada por Vibras Positivas (3117700431) - Derechos de Autor
-        </p>
+    <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas (3117700431)</p>
     </footer>
 
     <script>
@@ -70,13 +65,22 @@
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ Procesando Hoja 1...";
+            status.innerText = "🔍 Buscando hoja 'data'...";
             
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    
+                    // BUSCAR LA HOJA LLAMADA "DATA" EN CUALQUIER POSICIÓN
+                    const nombreHoja = workbook.SheetNames.find(n => n.toLowerCase().trim() === 'data');
+                    
+                    if(!nombreHoja) {
+                        status.innerText = "❌ ERROR: NO ENCUENTRO LA HOJA LLAMADA 'data'.";
+                        return;
+                    }
+
+                    const sheet = workbook.Sheets[nombreHoja];
                     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                     const headerRowIndex = rows.findIndex(r => r.some(c => c?.toString().toLowerCase().includes('cantidad')));
                     const rawJson = XLSX.utils.sheet_to_json(sheet, { range: headerRowIndex > -1 ? headerRowIndex : 0 });
@@ -90,19 +94,19 @@
                         return n;
                     });
 
-                    status.innerText = "✅ DATOS CARGADOS: " + dataH1.length + " LÍNEAS";
+                    status.innerText = "✅ HOJA 'DATA' ENCONTRADA: " + dataH1.length + " LÍNEAS";
                     llenarCombos();
                     document.getElementById('seccionFiltros').classList.remove('hidden');
                     document.getElementById('seccionGrafico').classList.remove('hidden');
                     calcular();
-                } catch (err) { status.innerText = "❌ Error en archivo."; }
+                } catch (err) { status.innerText = "❌ Error al procesar archivo."; }
             };
             reader.readAsBinaryString(e.target.files[0]);
         });
 
         function llenarCombos() {
             const vSet = new Set(['-- TODOS --']);
-            const mSet = new Set(); // Meses sin "-- TODOS --" para el multiselect
+            const mSet = new Set();
             const pSet = new Set(['-- TODOS --']);
 
             dataH1.forEach(f => {
@@ -112,70 +116,68 @@
             });
 
             poblar('selVendedor', vSet);
-            poblar('selMes', mSet, true); // true para pre-seleccionar todos
+            poblar('selMes', mSet, true);
             poblar('selProducto', pSet);
         }
 
-        function poblar(id, s, isMulti = false) {
+        function poblar(id, s, multi = false) {
             const el = document.getElementById(id);
             el.innerHTML = "";
             Array.from(s).sort().forEach(v => {
                 let o = document.createElement('option');
                 o.value = v; o.text = v;
-                if(isMulti) o.selected = true; // Por defecto selecciona todos los meses
+                if(multi) o.selected = true;
                 el.appendChild(o);
             });
         }
 
         function calcular() {
             const v = document.getElementById('selVendedor').value;
-            const mSelect = document.getElementById('selMes');
-            const mesesSeleccionados = Array.from(mSelect.selectedOptions).map(opt => opt.value);
+            const meses = Array.from(document.getElementById('selMes').selectedOptions).map(opt => opt.value);
             const p = document.getElementById('selProducto').value;
 
             let total = 0;
             let datosGrafico = {};
-
-            // Inicializar meses para el gráfico
-            mesesSeleccionados.forEach(mes => datosGrafico[mes] = 0);
+            meses.forEach(m => datosGrafico[m] = 0);
 
             dataH1.forEach(f => {
-                const mesFila = f.mes?.toString().trim();
+                const mesF = f.mes?.toString().trim();
                 const matchV = (v === '-- TODOS --' || f.nomvendedor?.toString().trim() === v);
-                const matchM = (mesesSeleccionados.includes(mesFila));
+                const matchM = (meses.includes(mesF));
                 const matchP = (p === '-- TODOS --' || f.nombre_producto?.toString().trim() === p);
 
                 if(matchV && matchM && matchP) {
-                    const kilos = (parseFloat(f.cantidad) || 0) * (parseFloat(f.peso) || 0);
+                    const cant = parseFloat(f.cantidad) || 0;
+                    const peso = parseFloat(f.peso) || 0;
+                    const kilos = cant * peso;
                     total += kilos;
-                    datosGrafico[mesFila] += kilos;
+                    if(mesF) datosGrafico[mesF] += kilos;
                 }
             });
 
-            document.getElementById('totalDisplay').innerText = total.toLocaleString('es-CO', {minimumFractionDigits: 2}) + " Kg";
+            document.getElementById('totalDisplay').innerText = total.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
             actualizarGrafico(datosGrafico);
         }
 
         function actualizarGrafico(datos) {
             const ctx = document.getElementById('miGrafico').getContext('2d');
-            const etiquetas = Object.keys(datos).sort();
-            const valores = etiquetas.map(e => datos[e]);
-
-            if (chartInstance) { chartInstance.destroy(); }
-
+            const labels = Object.keys(datos).sort();
+            const values = labels.map(l => datos[l]);
+            if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: etiquetas,
+                    labels: labels,
                     datasets: [{
                         label: 'Kilos Vendidos',
-                        data: valores,
-                        backgroundColor: '#1d4ed8',
-                        borderRadius: 8
+                        data: values,
+                        backgroundColor: '#1e40af',
+                        borderRadius: 12
                     }]
                 },
-                options: {
-                    responsive: true,
+                options: { 
+                    responsive: true, 
+                    plugins: { legend: { display: false } },
                     scales: { y: { beginAtZero: true } }
                 }
             });
