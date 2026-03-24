@@ -3,142 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador Distrileco - Versión Final</title>
+    <title>Gestión Empaquetadora - Distrileco</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 min-h-screen pb-24">
+<body class="bg-gray-50 min-h-screen pb-24 font-sans">
 
-    <header class="bg-blue-900 text-white p-6 shadow-xl text-center">
-        <h1 class="text-2xl font-black italic">DISTRILECO CAUCASIA</h1>
-        <p class="text-xs opacity-75 uppercase font-bold">Gestión de Kilaje - Vibras Positivas</p>
+    <header class="bg-blue-800 text-white p-6 shadow-2xl relative overflow-hidden">
+        <div class="relative z-10 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter italic">DISTRILECO CAUCASIA</h1>
+                <p class="text-[10px] uppercase font-bold tracking-widest opacity-80">Control de Kilaje Empaquetadora</p>
+            </div>
+            <div class="text-right">
+                <span class="bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-black">VIBRAS POSITIVAS</span>
+            </div>
+        </div>
+        <div class="absolute -right-5 -bottom-5 opacity-10 text-8xl rotate-12">
+            <i class="fas fa-seedling"></i>
+        </div>
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
         
-        <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-dashed border-blue-300 text-center">
-            <p class="text-blue-900 font-bold mb-3">📂 Paso 1: Selecciona tu archivo de Excel</p>
-            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
-            <p id="status" class="mt-2 text-xs text-gray-500 font-bold italic"></p>
+        <div class="bg-white p-8 rounded-[2rem] shadow-sm border-2 border-dashed border-blue-200 text-center transition-all hover:border-blue-500">
+            <div class="mb-4">
+                <i class="fas fa-file-excel text-4xl text-green-600"></i>
+            </div>
+            <p class="text-blue-900 font-bold mb-4">Seleccione el archivo con las columnas exactas</p>
+            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 file:bg-blue-800 file:text-white file:font-bold hover:file:bg-blue-700 cursor-pointer">
+            <p id="status" class="mt-4 text-xs font-black text-gray-400 italic uppercase"></p>
         </div>
 
-        <div id="seccionFiltros" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-6 rounded-3xl shadow-lg border-b-8 border-yellow-400">
-            <div>
-                <label class="block text-[10px] font-black text-blue-900 mb-1 uppercase">Vendedor</label>
-                <select id="selVendedor" onchange="aplicarFiltros()" class="w-full p-3 border border-gray-200 rounded-xl font-bold bg-gray-50"></select>
+        <div id="seccionFiltros" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border-b-8 border-yellow-400">
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-blue-800 ml-2 uppercase">Vendedor</label>
+                <select id="selVendedor" onchange="aplicarCalculos()" class="w-full p-3 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 shadow-inner focus:ring-2 focus:ring-blue-400"></select>
             </div>
-            <div>
-                <label class="block text-[10px] font-black text-blue-900 mb-1 uppercase">Mes</label>
-                <select id="selMes" onchange="aplicarFiltros()" class="w-full p-3 border border-gray-200 rounded-xl font-bold bg-gray-50"></select>
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-blue-800 ml-2 uppercase">Mes</label>
+                <select id="selMes" onchange="aplicarCalculos()" class="w-full p-3 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 shadow-inner focus:ring-2 focus:ring-blue-400"></select>
             </div>
-            <div>
-                <label class="block text-[10px] font-black text-blue-900 mb-1 uppercase">Producto</label>
-                <select id="selProducto" onchange="aplicarFiltros()" class="w-full p-3 border border-gray-200 rounded-xl font-bold bg-gray-50"></select>
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-blue-800 ml-2 uppercase">Producto</label>
+                <select id="selProducto" onchange="aplicarCalculos()" class="w-full p-3 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 shadow-inner focus:ring-2 focus:ring-blue-400"></select>
             </div>
         </div>
 
-        <div id="resultadoFinal" class="hidden space-y-4">
-            <div class="bg-blue-800 text-white p-8 rounded-3xl shadow-2xl text-center relative overflow-hidden">
-                <p class="text-xs font-bold opacity-70 uppercase mb-1">Total Kilos Calculados</p>
-                <h2 id="totalKilosDisplay" class="text-5xl font-black tracking-tighter">0.00 Kg</h2>
-                <div class="absolute -right-4 -bottom-4 opacity-10">
-                   <i class="fas fa-balance-scale text-9xl"></i>
-                </div>
+        <div id="resultadoFinal" class="hidden animate-bounce-short">
+            <div class="bg-gradient-to-br from-blue-900 to-blue-700 text-white p-10 rounded-[2.5rem] shadow-2xl text-center border-4 border-white">
+                <p class="text-xs font-bold opacity-70 uppercase tracking-widest mb-2">Total Kilos Despachados</p>
+                <h2 id="totalKilosDisplay" class="text-6xl font-black tracking-tighter">0.00 Kg</h2>
             </div>
-            
-            <button onclick="window.location.reload()" class="w-full py-2 text-xs text-blue-600 font-bold hover:underline">🔄 Cargar otro archivo</button>
         </div>
 
     </main>
 
-    <footer class="fixed bottom-0 w-full bg-white border-t p-3 text-center text-[10px] text-gray-500">
-        <p class="font-bold text-blue-900 italic uppercase">App desarrollada por Vibras Positivas (3117700431) - Derechos de Autor</p>
+    <footer class="fixed bottom-0 w-full bg-white/80 backdrop-blur-md border-t p-4 text-center">
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">
+            App desarrollada por Vibras Positivas (3117700431) - Derechos de Autor
+        </p>
+        <p class="text-[9px] text-gray-400 font-bold">© 2026 Distrileco Caucasia - Gestión de Datos</p>
     </footer>
 
     <script>
-        let datosGlobales = [];
+        let baseDatos = [];
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ Procesando archivo...";
+            status.innerText = "⏳ Leyendo columnas...";
             
-            const file = e.target.files[0];
             const reader = new FileReader();
-            
             reader.onload = function(evt) {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    const primeraHoja = workbook.Sheets[workbook.SheetNames[0]];
-                    let rawData = XLSX.utils.sheet_to_json(primeraHoja);
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    baseDatos = XLSX.utils.sheet_to_json(sheet);
 
-                    // LIMPIEZA DE COLUMNAS (Quita espacios y mayúsculas)
-                    datosGlobales = rawData.map(row => {
-                        let newRow = {};
-                        for (let key in row) {
-                            newRow[key.trim().toLowerCase()] = row[key];
-                        }
-                        return newRow;
-                    });
-
-                    status.innerText = "✅ ¡Archivo cargado con " + datosGlobales.length + " registros!";
-                    llenarSelectores();
-                    document.getElementById('seccionFiltros').classList.remove('hidden');
-                    document.getElementById('resultadoFinal').classList.remove('hidden');
-                    aplicarFiltros(); // Cálculo inicial
+                    if(baseDatos.length > 0) {
+                        status.innerText = "✅ " + baseDatos.length + " Registros detectados";
+                        generarSelectores();
+                        document.getElementById('seccionFiltros').classList.remove('hidden');
+                        document.getElementById('resultadoFinal').classList.remove('hidden');
+                        aplicarCalculos();
+                    }
                 } catch (err) {
-                    status.innerText = "❌ Error al leer el archivo. Revisa que sea un Excel válido.";
-                    console.error(err);
+                    status.innerText = "❌ Error en el archivo";
                 }
             };
-            reader.readAsBinaryString(file);
+            reader.readAsBinaryString(e.target.files[0]);
         });
 
-        function llenarSelectores() {
-            const vSet = new Set(['-- TODOS --']);
-            const mSet = new Set(['-- TODOS --']);
-            const pSet = new Set(['-- TODOS --']);
+        function generarSelectores() {
+            const vSet = new Set(['-- TODOS LOS VENDEDORES --']);
+            const mSet = new Set(['-- TODOS LOS MESES --']);
+            const pSet = new Set(['-- TODOS LOS PRODUCTOS --']);
 
-            datosGlobales.forEach(row => {
-                if(row.nomvendedor) vSet.add(row.nomvendedor.toString().trim());
-                if(row.mes) mSet.add(row.mes.toString().trim());
-                if(row.nombre_producto) pSet.add(row.nombre_producto.toString().trim());
+            baseDatos.forEach(fila => {
+                if(fila.nomvendedor) vSet.add(fila.nomvendedor.toString().trim());
+                if(fila.mes) mSet.add(fila.mes.toString().trim());
+                if(fila.nombre_producto) pSet.add(fila.nombre_producto.toString().trim());
             });
 
-            poblar('selVendedor', vSet);
-            poblar('selMes', mSet);
-            poblar('selProducto', pSet);
+            rellenar('selVendedor', vSet);
+            rellenar('selMes', mSet);
+            rellenar('selProducto', pSet);
         }
 
-        function poblar(id, set) {
+        function rellenar(id, conjunto) {
             const select = document.getElementById(id);
             select.innerHTML = "";
-            [...set].sort().forEach(v => {
-                let opt = document.createElement('option');
-                opt.value = v; opt.text = v;
-                select.appendChild(opt);
+            Array.from(conjunto).sort().forEach(val => {
+                let op = document.createElement('option');
+                op.value = val; op.text = val;
+                select.appendChild(op);
             });
         }
 
-        function aplicarFiltros() {
-            const v = document.getElementById('selVendedor').value;
-            const m = document.getElementById('selMes').value;
-            const p = document.getElementById('selProducto').value;
+        function aplicarCalculos() {
+            const vend = document.getElementById('selVendedor').value;
+            const mes = document.getElementById('selMes').value;
+            const prod = document.getElementById('selProducto').value;
 
-            let total = 0;
-            datosGlobales.forEach(row => {
-                const matchV = (v === '-- TODOS --' || row.nomvendedor?.toString().trim() === v);
-                const matchM = (m === '-- TODOS --' || row.mes?.toString().trim() === m);
-                const matchP = (p === '-- TODOS --' || row.nombre_producto?.toString().trim() === p);
+            let totalKg = 0;
 
-                if(matchV && matchM && matchP) {
-                    const cant = parseFloat(row.cantidad) || 0;
-                    const peso = parseFloat(row.peso) || 0; // Busca "peso" en minúsculas
-                    total += (cant * peso);
+            baseDatos.forEach(f => {
+                const checkV = (vend.includes('--') || f.nomvendedor?.toString().trim() === vend);
+                const checkM = (mes.includes('--') || f.mes?.toString().trim() === mes);
+                const checkP = (prod.includes('--') || f.nombre_producto?.toString().trim() === prod);
+
+                if(checkV && checkM && checkP) {
+                    // Columnas exactas de tu imagen: cantidad y PESO
+                    const c = parseFloat(f.cantidad) || 0;
+                    const p = parseFloat(f.PESO) || 0;
+                    totalKg += (c * p);
                 }
             });
 
-            document.getElementById('totalKilosDisplay').innerText = total.toLocaleString('es-CO', {minimumFractionDigits: 2}) + " Kg";
+            document.getElementById('totalKilosDisplay').innerText = totalKg.toLocaleString('es-CO', {minimumFractionDigits: 2}) + " Kg";
         }
     </script>
+
+    <style>
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-short { animation: bounce-short 2s infinite; }
+    </style>
 </body>
 </html>
