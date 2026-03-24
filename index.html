@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Distrileco - Vibras Positivas</title>
+    <title>Dashboard Pro - Distrileco</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,19 +13,16 @@
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center border-b-4 border-yellow-400">
         <h1 class="text-2xl font-black italic tracking-tighter uppercase">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] font-bold tracking-widest opacity-75 italic text-yellow-400 uppercase">Control de Kilos y Unidades</p>
+        <p class="text-[10px] font-bold tracking-widest opacity-75 italic text-yellow-400 uppercase">Control Total: Kilos y Cantidades</p>
     </header>
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 ACTUALIZAR DATA (HOJA DATA)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800 transition-all">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA CARGAR</p>
-                <button onclick="borrarTodo()" class="bg-red-600 text-white text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-700 transition-all uppercase italic">
-                    <i class="fas fa-sync-alt mr-1"></i> Limpiar Todo
-                </button>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO ARCHIVO...</p>
+                <button onclick="borrarTodo()" class="bg-red-600 text-white text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-700 transition-all uppercase italic">Limpiar Todo</button>
             </div>
         </div>
 
@@ -37,7 +34,7 @@
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic font-bold">Meses (Ctrl + Clic)</label>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl + Clic)</label>
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-48 outline-none focus:border-blue-500 shadow-inner"></select>
                 </div>
                 <div>
@@ -45,18 +42,18 @@
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px] mt-4">
-                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Enviar Reporte Harold
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Enviar a Harold
                 </button>
             </div>
 
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Kilos Despachados</p>
-                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic font-black text-white">0.00 Kg</h2>
+                    <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center border-b-8 border-blue-950">
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Peso Total (Kilos)</p>
+                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter">Ranking Distrileco:</h4>
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Resumen Distrileco:</h4>
                         <div id="analisisNotas" class="text-[11px] space-y-1 font-bold text-gray-600 uppercase">
                             <p id="mejorVendedor"></p>
                             <p id="mejorCiudad"></p>
@@ -64,21 +61,21 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
-                    <h3 class="text-center text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest">Rendimiento Mensual (KILOS)</h3>
+                <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100">
+                    <h3 class="text-[10px] font-black text-blue-900 uppercase mb-4 border-b pb-1 italic">Rendimiento en Kilos</h3>
                     <canvas id="miGrafico" height="120"></canvas>
                 </div>
 
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
-                    <h3 class="text-center text-[10px] font-black text-blue-900 uppercase mb-4 tracking-widest">Movimiento por Referencia (CANTIDAD UNIDADES)</h3>
-                    <canvas id="graficoUnidades" height="150"></canvas>
+                <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100">
+                    <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-4 border-b pb-1 italic">Movimiento en Unidades (Cantidades)</h3>
+                    <canvas id="graficoCantidades" height="150"></canvas>
                 </div>
             </div>
         </div>
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">Desarrollado por Vibras Positivas (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">App Vibras Positivas (3117700431)</p>
     </footer>
 
     <script>
@@ -87,7 +84,7 @@
         let chartUnidades = null;
 
         window.onload = function() {
-            const d = localStorage.getItem('distrileco_v_final_units');
+            const d = localStorage.getItem('distrileco_final_v_ok');
             if(d) {
                 baseDatos = JSON.parse(d);
                 if(baseDatos.length > 0) {
@@ -99,7 +96,7 @@
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ Leyendo...";
+            status.innerText = "⏳ Procesando...";
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -113,11 +110,10 @@
                         cantidad: f.cantidad,
                         ciudad: f.ciudad,
                         nomvendedor: f.nomvendedor,
-                        PESO: f.PESO,
-                        referencia: f.referencia
+                        PESO: f.PESO
                     })).filter(f => f.cantidad != null);
 
-                    localStorage.setItem('distrileco_v_final_units', JSON.stringify(baseDatos));
+                    localStorage.setItem('distrileco_final_v_ok', JSON.stringify(baseDatos));
                     status.innerText = "✅ " + baseDatos.length + " LÍNEAS CARGADAS";
                     activarDashboard();
                 } catch (err) { status.innerText = "❌ ERROR AL LEER"; }
@@ -153,13 +149,8 @@
             const v = document.getElementById('selVendedor').value;
             const mSel = Array.from(document.getElementById('selMes').selectedOptions).map(opt => opt.value);
             const p = document.getElementById('selProducto').value;
-            
-            let totalKilos = 0; 
-            let dKilos = {}; 
-            let dUnidadesProd = {}; // Para el nuevo gráfico
-            let rV = {}; let rC = {};
-            
-            mSel.forEach(m => dKilos[m] = 0);
+            let totalK = 0; let dK = {}; let rV = {}; let rC = {}; let dU = {};
+            mSel.forEach(m => dK[m] = 0);
 
             baseDatos.forEach(f => {
                 const mesF = f.mes?.toString().trim();
@@ -172,29 +163,26 @@
                     const cant = parseFloat(f.cantidad) || 0;
                     const peso = parseFloat(f.PESO) || 0;
                     const k = cant * peso;
-                    
-                    totalKilos += k;
-                    if(mesF) dKilos[mesF] = (dKilos[mesF] || 0) + k;
+                    totalK += k;
+                    if(mesF) dK[mesF] = (dK[mesF] || 0) + k;
                     if(f.nomvendedor) rV[f.nomvendedor] = (rV[f.nomvendedor] || 0) + k;
                     if(f.ciudad) rC[f.ciudad] = (rC[f.ciudad] || 0) + k;
-                    
-                    // Acumular Unidades por nombre de producto
-                    if(prodF) dUnidadesProd[prodF] = (dUnidadesProd[prodF] || 0) + cant;
+                    if(prodF) dU[prodF] = (dU[prodF] || 0) + cant;
                 }
             });
 
-            document.getElementById('totalDisplay').innerText = totalKilos.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
+            document.getElementById('totalDisplay').innerText = totalK.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
             const mv = Object.entries(rV).sort((a,b) => b[1] - a[1])[0];
             const mc = Object.entries(rC).sort((a,b) => b[1] - a[1])[0];
 
             document.getElementById('mejorVendedor').innerHTML = mv ? `🥇 VENDEDOR: ${mv[0]}` : "";
             document.getElementById('mejorCiudad').innerHTML = mc ? `📍 CIUDAD: ${mc[0]}` : "";
 
-            actualizarGraficoKilos(dKilos);
-            actualizarGraficoUnidades(dUnidadesProd);
+            renderGraficoKilos(dK);
+            renderGraficoUnidades(dU);
         }
 
-        function actualizarGraficoKilos(datos) {
+        function renderGraficoKilos(datos) {
             const ctx = document.getElementById('miGrafico').getContext('2d');
             const labels = Object.keys(datos).sort();
             if (chartKilos) chartKilos.destroy();
@@ -205,44 +193,26 @@
             });
         }
 
-        function actualizarGraficoUnidades(datos) {
-            const ctx = document.getElementById('graficoUnidades').getContext('2d');
-            // Ordenar por cantidad vendida de mayor a menor para que el gráfico sea claro
-            const sortedData = Object.entries(datos).sort((a,b) => b[1] - a[1]).slice(0, 10); // Top 10 referencias
-            const labels = sortedData.map(d => d[0]);
-            const values = sortedData.map(d => d[1]);
-
+        function renderGraficoUnidades(datos) {
+            const ctx = document.getElementById('graficoCantidades').getContext('2d');
+            const sorted = Object.entries(datos).sort((a,b) => b[1] - a[1]).slice(0, 10);
             if (chartUnidades) chartUnidades.destroy();
             chartUnidades = new Chart(ctx, {
                 type: 'bar',
-                indexAxis: 'y', // Gráfico horizontal para leer mejor los nombres de productos
-                data: { 
-                    labels: labels, 
-                    datasets: [{ 
-                        label: 'Unidades Vendidas', 
-                        data: values, 
-                        backgroundColor: '#fbbf24', 
-                        borderRadius: 5 
-                    }] 
-                },
-                options: { 
-                    responsive: true, 
-                    plugins: { legend: { display: false } },
-                    scales: { x: { beginAtZero: true } }
-                }
+                indexAxis: 'y',
+                data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Unidades', data: sorted.map(d => d[1]), backgroundColor: '#10b981' }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
             });
         }
 
         function borrarTodo() {
-            if(confirm("¿Seguro que quieres limpiar todo?")) {
-                localStorage.clear();
-                location.reload();
-            }
+            localStorage.clear();
+            location.reload();
         }
 
         function enviarWhatsApp() {
             const t = document.getElementById('totalDisplay').innerText;
-            const txt = `🍚 REPORTE DISTRILECO\n📊 Total Kilos: ${t}\n_Vibras Positivas_`;
+            const txt = `🍚 REPORTE DISTRILECO\n📊 Total: ${t}\n_Vibras Positivas_`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
