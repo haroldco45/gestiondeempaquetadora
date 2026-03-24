@@ -3,45 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Hoja 1 - Distrileco</title>
+    <title>Dashboard Comparativo - Distrileco</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen pb-24 font-sans text-gray-800">
+<body class="bg-slate-100 min-h-screen pb-24 font-sans text-gray-800">
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center">
         <h1 class="text-2xl font-black italic tracking-tighter">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] uppercase font-bold tracking-widest opacity-75">Análisis Exclusivo Hoja 1</p>
+        <p class="text-[10px] uppercase font-bold tracking-widest opacity-75">Comparador de Ventas Mensuales</p>
     </header>
 
-    <main class="p-4 max-w-4xl mx-auto space-y-6">
+    <main class="p-4 max-w-5xl mx-auto space-y-6">
         
-        <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-4 uppercase text-xs">📂 PASO 1: CARGAR EXCEL DE EMPAQUETADORA</p>
-            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:file:bg-blue-800 transition-all">
-            <p id="status" class="mt-4 text-sm font-bold text-emerald-600 italic"></p>
+        <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
+            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer">
+            <p id="status" class="mt-2 text-xs font-bold text-blue-600 italic uppercase"></p>
         </div>
 
-        <div id="seccionFiltros" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-6 rounded-3xl shadow-lg border-b-8 border-yellow-400">
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-blue-900 ml-2 uppercase">Vendedor</label>
-                <select id="selVendedor" onchange="calcular()" class="w-full p-3 bg-gray-50 border-none rounded-xl font-bold text-gray-700 shadow-inner"></select>
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-blue-900 ml-2 uppercase">Mes</label>
-                <select id="selMes" onchange="calcular()" class="w-full p-3 bg-gray-50 border-none rounded-xl font-bold text-gray-700 shadow-inner"></select>
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-blue-900 ml-2 uppercase">Producto</label>
-                <select id="selProducto" onchange="calcular()" class="w-full p-3 bg-gray-50 border-none rounded-xl font-bold text-gray-700 shadow-inner"></select>
-            </div>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div id="seccionFiltros" class="hidden space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400">
+                <h3 class="font-black text-blue-900 text-sm border-b pb-2">FILTROS DE ANÁLISIS</h3>
+                
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
+                    <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-sm"></select>
+                </div>
 
-        <div id="resultadoFinal" class="hidden">
-            <div class="bg-gradient-to-br from-blue-900 to-blue-800 text-white p-12 rounded-[2.5rem] shadow-2xl text-center border-4 border-white relative overflow-hidden">
-                <p class="text-xs font-bold opacity-70 uppercase mb-2 tracking-widest">Kilaje Total (Hoja 1)</p>
-                <h2 id="totalDisplay" class="text-7xl font-black tracking-tighter">0.00 Kg</h2>
-                <div class="absolute right-4 bottom-4 opacity-5 text-8xl">📊</div>
+                <div>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Selección de Meses (Usa Ctrl/Cmd)</label>
+                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-lg font-bold text-sm h-32"></select>
+                    <p class="text-[9px] text-gray-400 mt-1">Selecciona uno o varios meses para comparar.</p>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase">Producto</label>
+                    <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-lg font-bold text-sm"></select>
+                </div>
+            </div>
+
+            <div id="seccionGrafico" class="hidden lg:col-span-2 space-y-6">
+                <div class="bg-blue-800 text-white p-8 rounded-3xl shadow-2xl text-center">
+                    <p class="text-xs font-bold opacity-70 uppercase mb-1">Total Kilos en Selección</p>
+                    <h2 id="totalDisplay" class="text-5xl font-black tracking-tighter">0.00 Kg</h2>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <h3 class="text-center font-bold text-gray-500 text-xs uppercase mb-4 tracking-widest">Comparativa Mensual de Kilaje</h3>
+                    <canvas id="miGrafico" height="150"></canvas>
+                </div>
             </div>
         </div>
 
@@ -55,28 +66,21 @@
 
     <script>
         let dataH1 = [];
+        let chartInstance = null;
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ Accediendo a Hoja 1...";
+            status.innerText = "⏳ Procesando Hoja 1...";
             
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    
-                    // BUSCAR "HOJA1" (Ignora mayúsculas o espacios)
-                    const nombreHoja1 = workbook.SheetNames.find(n => n.toLowerCase().replace(/\s/g, '') === 'hoja1') || workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[nombreHoja1];
-                    
-                    // Convertir a matriz para limpiar encabezados sucios
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                     const headerRowIndex = rows.findIndex(r => r.some(c => c?.toString().toLowerCase().includes('cantidad')));
-                    
-                    // Cargar datos reales desde la fila donde está la tabla
                     const rawJson = XLSX.utils.sheet_to_json(sheet, { range: headerRowIndex > -1 ? headerRowIndex : 0 });
 
-                    // Normalización final
                     dataH1 = rawJson.map(f => {
                         let n = {};
                         for (let k in f) {
@@ -86,26 +90,19 @@
                         return n;
                     });
 
-                    if(dataH1.length > 0) {
-                        status.innerText = "✅ HOJA 1 CARGADA: " + dataH1.length + " LÍNEAS";
-                        llenarCombos();
-                        document.getElementById('seccionFiltros').classList.remove('hidden');
-                        document.getElementById('resultadoFinal').classList.remove('hidden');
-                        calcular();
-                    } else {
-                        status.innerText = "❌ No hay datos en la Hoja 1.";
-                    }
-                } catch (err) {
-                    status.innerText = "❌ Error procesando el archivo.";
-                    console.error(err);
-                }
+                    status.innerText = "✅ DATOS CARGADOS: " + dataH1.length + " LÍNEAS";
+                    llenarCombos();
+                    document.getElementById('seccionFiltros').classList.remove('hidden');
+                    document.getElementById('seccionGrafico').classList.remove('hidden');
+                    calcular();
+                } catch (err) { status.innerText = "❌ Error en archivo."; }
             };
             reader.readAsBinaryString(e.target.files[0]);
         });
 
         function llenarCombos() {
             const vSet = new Set(['-- TODOS --']);
-            const mSet = new Set(['-- TODOS --']);
+            const mSet = new Set(); // Meses sin "-- TODOS --" para el multiselect
             const pSet = new Set(['-- TODOS --']);
 
             dataH1.forEach(f => {
@@ -115,39 +112,73 @@
             });
 
             poblar('selVendedor', vSet);
-            poblar('selMes', mSet);
+            poblar('selMes', mSet, true); // true para pre-seleccionar todos
             poblar('selProducto', pSet);
         }
 
-        function poblar(id, s) {
+        function poblar(id, s, isMulti = false) {
             const el = document.getElementById(id);
             el.innerHTML = "";
             Array.from(s).sort().forEach(v => {
                 let o = document.createElement('option');
                 o.value = v; o.text = v;
+                if(isMulti) o.selected = true; // Por defecto selecciona todos los meses
                 el.appendChild(o);
             });
         }
 
         function calcular() {
             const v = document.getElementById('selVendedor').value;
-            const m = document.getElementById('selMes').value;
+            const mSelect = document.getElementById('selMes');
+            const mesesSeleccionados = Array.from(mSelect.selectedOptions).map(opt => opt.value);
             const p = document.getElementById('selProducto').value;
 
             let total = 0;
+            let datosGrafico = {};
+
+            // Inicializar meses para el gráfico
+            mesesSeleccionados.forEach(mes => datosGrafico[mes] = 0);
+
             dataH1.forEach(f => {
+                const mesFila = f.mes?.toString().trim();
                 const matchV = (v === '-- TODOS --' || f.nomvendedor?.toString().trim() === v);
-                const matchM = (m === '-- TODOS --' || f.mes?.toString().trim() === m);
+                const matchM = (mesesSeleccionados.includes(mesFila));
                 const matchP = (p === '-- TODOS --' || f.nombre_producto?.toString().trim() === p);
 
                 if(matchV && matchM && matchP) {
-                    const cant = parseFloat(f.cantidad) || 0;
-                    const peso = parseFloat(f.peso) || 0;
-                    total += (cant * peso);
+                    const kilos = (parseFloat(f.cantidad) || 0) * (parseFloat(f.peso) || 0);
+                    total += kilos;
+                    datosGrafico[mesFila] += kilos;
                 }
             });
 
             document.getElementById('totalDisplay').innerText = total.toLocaleString('es-CO', {minimumFractionDigits: 2}) + " Kg";
+            actualizarGrafico(datosGrafico);
+        }
+
+        function actualizarGrafico(datos) {
+            const ctx = document.getElementById('miGrafico').getContext('2d');
+            const etiquetas = Object.keys(datos).sort();
+            const valores = etiquetas.map(e => datos[e]);
+
+            if (chartInstance) { chartInstance.destroy(); }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: etiquetas,
+                    datasets: [{
+                        label: 'Kilos Vendidos',
+                        data: valores,
+                        backgroundColor: '#1d4ed8',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
         }
     </script>
 </body>
