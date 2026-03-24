@@ -85,7 +85,6 @@
         let baseDatos = [];
         let chartInstance = null;
 
-        // Al iniciar, intentar cargar
         window.onload = function() {
             const d = localStorage.getItem('distrileco_v_final');
             if(d) {
@@ -104,12 +103,9 @@
             reader.onload = function(evt) {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    // Busca la hoja 'data' o usa la primera
-                    const nombreHoja = workbook.SheetNames.find(n => n.toLowerCase().includes('data')) || workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[nombreHoja];
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet);
 
-                    // Extraer columnas con nombres fijos
                     baseDatos = json.map(f => ({
                         mes: f.mes,
                         nombre_producto: f.nombre_producto,
