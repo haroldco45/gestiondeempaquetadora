@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pro - Distrileco</title>
+    <title>BI Distrileco - Vibras Positivas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,16 +13,19 @@
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center border-b-4 border-yellow-400">
         <h1 class="text-2xl font-black italic tracking-tighter uppercase">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] font-bold tracking-widest opacity-75 italic text-yellow-400 uppercase">Control Total: Kilos y Cantidades</p>
+        <p class="text-[10px] font-bold tracking-widest opacity-75 italic text-yellow-400 uppercase font-black">Control Total: Kilos y Unidades</p>
     </header>
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800 transition-all">
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 PASO 1: CARGAR EXCEL (COLUMNAS REALES)</p>
+            <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
                 <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO ARCHIVO...</p>
-                <button onclick="borrarTodo()" class="bg-red-600 text-white text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-700 transition-all uppercase italic">Limpiar Todo</button>
+                <button onclick="borrarTodo()" class="bg-red-600 text-white text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-700 transition-all uppercase italic">
+                    <i class="fas fa-trash-alt mr-1"></i> Limpiar Todo
+                </button>
             </div>
         </div>
 
@@ -49,8 +52,8 @@
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center border-b-8 border-blue-950">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Peso Total (Kilos)</p>
-                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic">0.00 Kg</h2>
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic font-black">Kilos Totales</p>
+                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic text-white">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
                         <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Resumen Distrileco:</h4>
@@ -62,12 +65,12 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100">
-                    <h3 class="text-[10px] font-black text-blue-900 uppercase mb-4 border-b pb-1 italic">Rendimiento en Kilos</h3>
+                    <h3 class="text-[10px] font-black text-blue-900 uppercase mb-4 border-b pb-1 italic text-center">Movimiento por Mes (KILOS)</h3>
                     <canvas id="miGrafico" height="120"></canvas>
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100">
-                    <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-4 border-b pb-1 italic">Movimiento en Unidades (Cantidades)</h3>
+                    <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-4 border-b pb-1 italic text-center">Top Referencias (UNIDADES)</h3>
                     <canvas id="graficoCantidades" height="150"></canvas>
                 </div>
             </div>
@@ -84,11 +87,11 @@
         let chartUnidades = null;
 
         window.onload = function() {
-            const d = localStorage.getItem('distrileco_final_v_ok');
-            if(d) {
-                baseDatos = JSON.parse(d);
+            const saved = localStorage.getItem('distrileco_bi_final_units_v2');
+            if(saved) {
+                baseDatos = JSON.parse(saved);
                 if(baseDatos.length > 0) {
-                    document.getElementById('status').innerText = "✅ MEMORIA CARGADA (" + baseDatos.length + ")";
+                    document.getElementById('status').innerText = "✅ MEMORIA CARGADA (" + baseDatos.length + " LÍNEAS)";
                     activarDashboard();
                 }
             }
@@ -104,6 +107,7 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet);
 
+                    // Mapeo DIRECTO (No adivina, busca tus nombres reales)
                     baseDatos = json.map(f => ({
                         mes: f.mes,
                         nombre_producto: f.nombre_producto,
@@ -113,7 +117,7 @@
                         PESO: f.PESO
                     })).filter(f => f.cantidad != null);
 
-                    localStorage.setItem('distrileco_final_v_ok', JSON.stringify(baseDatos));
+                    localStorage.setItem('distrileco_bi_final_units_v2', JSON.stringify(baseDatos));
                     status.innerText = "✅ " + baseDatos.length + " LÍNEAS CARGADAS";
                     activarDashboard();
                 } catch (err) { status.innerText = "❌ ERROR AL LEER"; }
@@ -149,7 +153,8 @@
             const v = document.getElementById('selVendedor').value;
             const mSel = Array.from(document.getElementById('selMes').selectedOptions).map(opt => opt.value);
             const p = document.getElementById('selProducto').value;
-            let totalK = 0; let dK = {}; let rV = {}; let rC = {}; let dU = {};
+            
+            let totalK = 0; let dK = {}; let dU = {}; let rV = {}; let rC = {};
             mSel.forEach(m => dK[m] = 0);
 
             baseDatos.forEach(f => {
@@ -178,11 +183,11 @@
             document.getElementById('mejorVendedor').innerHTML = mv ? `🥇 VENDEDOR: ${mv[0]}` : "";
             document.getElementById('mejorCiudad').innerHTML = mc ? `📍 CIUDAD: ${mc[0]}` : "";
 
-            renderGraficoKilos(dK);
-            renderGraficoUnidades(dU);
+            renderKilos(dK);
+            renderUnidades(dU);
         }
 
-        function renderGraficoKilos(datos) {
+        function renderKilos(datos) {
             const ctx = document.getElementById('miGrafico').getContext('2d');
             const labels = Object.keys(datos).sort();
             if (chartKilos) chartKilos.destroy();
@@ -193,14 +198,14 @@
             });
         }
 
-        function renderGraficoUnidades(datos) {
+        function renderUnidades(datos) {
             const ctx = document.getElementById('graficoCantidades').getContext('2d');
             const sorted = Object.entries(datos).sort((a,b) => b[1] - a[1]).slice(0, 10);
             if (chartUnidades) chartUnidades.destroy();
             chartUnidades = new Chart(ctx, {
                 type: 'bar',
                 indexAxis: 'y',
-                data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Unidades', data: sorted.map(d => d[1]), backgroundColor: '#10b981' }] },
+                data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Unidades', data: sorted.map(d => d[1]), backgroundColor: '#10b981', borderRadius: 5 }] },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
         }
@@ -212,7 +217,7 @@
 
         function enviarWhatsApp() {
             const t = document.getElementById('totalDisplay').innerText;
-            const txt = `🍚 REPORTE DISTRILECO\n📊 Total: ${t}\n_Vibras Positivas_`;
+            const txt = `🍚 *REPORTE DISTRILECO*\n📊 *Total Kilos:* ${t}\n_Vibras Positivas_`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
