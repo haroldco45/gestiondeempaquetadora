@@ -13,16 +13,16 @@
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center border-b-4 border-yellow-400">
         <h1 class="text-2xl font-black italic tracking-tighter uppercase">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] font-bold tracking-widest opacity-75 italic text-yellow-400 uppercase font-black">Control Total: Kilos y Unidades</p>
+        <p class="text-[10px] font-bold tracking-widest opacity-75 italic text-yellow-400 uppercase">Dashboard: Kilos y Unidades</p>
     </header>
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 PASO 1: CARGAR EXCEL (COLUMNAS REALES)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 PASO 1: CARGAR EXCEL (COLUMNAS ORIGINALES)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO ARCHIVO...</p>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA RECIBIR DATA</p>
                 <button onclick="borrarTodo()" class="bg-red-600 text-white text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-700 transition-all uppercase italic">
                     <i class="fas fa-trash-alt mr-1"></i> Limpiar Todo
                 </button>
@@ -31,13 +31,13 @@
 
         <div id="dashboardUI" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-blue-900 h-fit">
-                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Activos</h3>
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center text-blue-800">Panel de Filtros</h3>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase italic">Vendedor</label>
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl + Clic)</label>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic font-bold">Meses (Ctrl + Clic)</label>
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-48 outline-none focus:border-blue-500 shadow-inner"></select>
                 </div>
                 <div>
@@ -45,19 +45,19 @@
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px] mt-4">
-                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Enviar a Harold
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Reporte a Harold
                 </button>
             </div>
 
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center border-b-8 border-blue-950">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic font-black">Kilos Totales</p>
-                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic text-white">0.00 Kg</h2>
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic font-black">Kilos Despachados</p>
+                        <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic text-white font-black">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Resumen Distrileco:</h4>
-                        <div id="analisisNotas" class="text-[11px] space-y-1 font-bold text-gray-600 uppercase">
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Analítica Harold:</h4>
+                        <div id="analisisNotas" class="text-[11px] space-y-1 font-bold text-gray-600 uppercase italic leading-tight">
                             <p id="mejorVendedor"></p>
                             <p id="mejorCiudad"></p>
                         </div>
@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100">
-                    <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-4 border-b pb-1 italic text-center">Top Referencias (UNIDADES)</h3>
+                    <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-4 border-b pb-1 italic text-center">Top Unidades por Referencia (CANTIDADES)</h3>
                     <canvas id="graficoCantidades" height="150"></canvas>
                 </div>
             </div>
@@ -78,7 +78,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">App Vibras Positivas (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">Desarrollado por Vibras Positivas (3117700431)</p>
     </footer>
 
     <script>
@@ -87,11 +87,11 @@
         let chartUnidades = null;
 
         window.onload = function() {
-            const saved = localStorage.getItem('distrileco_bi_final_units_v2');
+            const saved = localStorage.getItem('distrileco_final_v_bi');
             if(saved) {
                 baseDatos = JSON.parse(saved);
                 if(baseDatos.length > 0) {
-                    document.getElementById('status').innerText = "✅ MEMORIA CARGADA (" + baseDatos.length + " LÍNEAS)";
+                    document.getElementById('status').innerText = "✅ DATOS EN MEMORIA (" + baseDatos.length + ")";
                     activarDashboard();
                 }
             }
@@ -99,7 +99,7 @@
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ Procesando...";
+            status.innerText = "⏳ Leyendo...";
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -107,7 +107,7 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet);
 
-                    // Mapeo DIRECTO (No adivina, busca tus nombres reales)
+                    // MAPEO DIRECTO A TUS COLUMNAS (mes, nombre_producto, cantidad, ciudad, nomvendedor, PESO)
                     baseDatos = json.map(f => ({
                         mes: f.mes,
                         nombre_producto: f.nombre_producto,
@@ -117,7 +117,7 @@
                         PESO: f.PESO
                     })).filter(f => f.cantidad != null);
 
-                    localStorage.setItem('distrileco_bi_final_units_v2', JSON.stringify(baseDatos));
+                    localStorage.setItem('distrileco_final_v_bi', JSON.stringify(baseDatos));
                     status.innerText = "✅ " + baseDatos.length + " LÍNEAS CARGADAS";
                     activarDashboard();
                 } catch (err) { status.innerText = "❌ ERROR AL LEER"; }
