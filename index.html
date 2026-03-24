@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pro - Distrileco</title>
+    <title>BI Dashboard - Distrileco</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,13 +13,13 @@
 
     <header class="bg-blue-900 text-white p-6 shadow-xl text-center">
         <h1 class="text-2xl font-black italic tracking-tighter uppercase">DISTRILECO CAUCASIA</h1>
-        <p class="text-[10px] font-bold tracking-widest opacity-75 italic underline decoration-yellow-400">CONTROL TOTAL DE EMPAQUETADORA</p>
+        <p class="text-[10px] font-bold tracking-widest opacity-75 italic underline decoration-yellow-400">INTELIGENCIA DE NEGOCIOS: EMPAQUETADORA</p>
     </header>
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 1. CARGAR EXCEL ACTUALIZADO</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 1. ACTUALIZAR DATA MAESTRA</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
                 <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg"></p>
@@ -31,13 +31,13 @@
 
         <div id="dashboardUI" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400 h-fit">
-                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Activos</h3>
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Inteligentes</h3>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Comparar Meses</label>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Periodos (Ctrl + Clic)</label>
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-48 outline-none focus:border-blue-500 shadow-inner"></select>
                 </div>
                 <div>
@@ -45,46 +45,56 @@
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px] mt-4">
-                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Enviar a Harold
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Reporte a Harold
                 </button>
             </div>
 
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Kilos Despachados</p>
+                    <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center relative overflow-hidden">
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Kilos Totales</p>
                         <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic">0.00 Kg</h2>
+                        <i class="fas fa-box absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter">Análisis Vibras Positivas:</h4>
-                        <div id="analisisNotas" class="text-xs space-y-1 font-bold text-gray-600 italic">
-                            <p id="mejorVendedor">Cargando...</p>
-                            <p id="mejorCiudad">Cargando...</p>
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter"><i class="fas fa-lightbulb mr-1"></i> Análisis del Gerente:</h4>
+                        <div id="analisisNotas" class="text-[11px] space-y-1 font-bold text-gray-600 italic">
+                            <p id="mejorVendedor"></p>
+                            <p id="mejorCiudad"></p>
+                            <p id="mejorProducto" class="text-blue-700"></p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
-                    <canvas id="miGrafico" height="140"></canvas>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100">
+                        <h3 class="text-[10px] font-black text-blue-900 uppercase mb-4 border-b pb-1 italic"><i class="fas fa-star mr-1 text-yellow-500"></i> Top 5 Productos (Kilos)</h3>
+                        <div id="listaTopProductos" class="space-y-3">
+                            </div>
+                    </div>
+
+                    <div class="md:col-span-2 bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
+                        <canvas id="miGrafico" height="160"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">Desarrollado por Vibras Positivas (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest uppercase">App Inteligente Vibras Positivas (3117700431)</p>
     </footer>
 
     <script>
         let baseDatos = [];
         let chartInstance = null;
 
-        // Recuperar al iniciar
         window.onload = function() {
             try {
-                const data = localStorage.getItem('distrileco_final');
+                const data = localStorage.getItem('distrileco_bi_v1');
                 if(data) {
                     baseDatos = JSON.parse(data);
-                    document.getElementById('status').innerText = "✅ MEMORIA RECUPERADA";
+                    document.getElementById('status').innerText = "✅ SISTEMA LISTO";
                     activarDashboard();
                 }
             } catch (e) { localStorage.clear(); }
@@ -92,7 +102,7 @@
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ Limpiando y Procesando...";
+            status.innerText = "⏳ Procesando BI...";
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -100,7 +110,6 @@
                     const sheet = workbook.Sheets[workbook.SheetNames.find(n => n.toLowerCase().includes('data')) || workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet);
 
-                    // OPTIMIZACIÓN EXTREMA: Guardar solo lo mínimo para que quepa
                     baseDatos = json.map(f => {
                         let n = {};
                         for (let k in f) {
@@ -110,15 +119,10 @@
                         return n;
                     });
 
-                    // Limpiar antes de guardar para evitar "Quota Exceeded"
-                    localStorage.removeItem('distrileco_final');
-                    try {
-                        localStorage.setItem('distrileco_final', JSON.stringify(baseDatos));
-                    } catch(e) { console.warn("Archivo muy grande para memoria, operando en vivo."); }
-
-                    status.innerText = "✅ CARGADO: " + baseDatos.length + " REGISTROS";
+                    localStorage.setItem('distrileco_bi_v1', JSON.stringify(baseDatos));
+                    status.innerText = "✅ DATA ACTUALIZADA: " + baseDatos.length + " REGISTROS";
                     activarDashboard();
-                } catch (err) { status.innerText = "❌ ERROR AL LEER EXCEL"; }
+                } catch (err) { status.innerText = "❌ ERROR EN LECTURA"; }
             };
             reader.readAsBinaryString(e.target.files[0]);
         });
@@ -155,28 +159,49 @@
             const v = document.getElementById('selVendedor').value;
             const meses = Array.from(document.getElementById('selMes').selectedOptions).map(opt => opt.value);
             const p = document.getElementById('selProducto').value;
-            let total = 0; let datosGrafico = {}; let rV = {}; let rC = {};
+            let total = 0; let datosGrafico = {}; let rV = {}; let rC = {}; let rP = {};
             meses.forEach(m => datosGrafico[m] = 0);
 
             baseDatos.forEach(f => {
                 const mesF = f.mes?.toString().trim();
+                const prodF = f.nombre_producto?.toString().trim();
                 const matchV = (v === '-- TODOS --' || f.nomvendedor?.toString().trim() === v);
                 const matchM = (meses.includes(mesF));
-                const matchP = (p === '-- TODOS --' || f.nombre_producto?.toString().trim() === p);
+                const matchP = (p === '-- TODOS --' || prodF === p);
+
                 if(matchV && matchM && matchP) {
                     const kilos = (parseFloat(f.cantidad) || 0) * (parseFloat(f.peso) || 0);
                     total += kilos;
                     if(mesF) datosGrafico[mesF] += kilos;
                     if(f.nomvendedor) rV[f.nomvendedor] = (rV[f.nomvendedor] || 0) + kilos;
                     if(f.ciudad) rC[f.ciudad] = (rC[f.ciudad] || 0) + kilos;
+                    if(prodF) rP[prodF] = (rP[prodF] || 0) + kilos;
                 }
             });
 
             document.getElementById('totalDisplay').innerText = total.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
+            
             const mv = Object.entries(rV).sort((a,b) => b[1] - a[1])[0];
             const mc = Object.entries(rC).sort((a,b) => b[1] - a[1])[0];
-            document.getElementById('mejorVendedor').innerHTML = mv ? `<span class="text-blue-900">Vendedor Top:</span> ${mv[0]}` : "N/A";
-            document.getElementById('mejorCiudad').innerHTML = mc ? `<span class="text-blue-900">Ciudad Top:</span> ${mc[0]}` : "N/A";
+            const mp = Object.entries(rP).sort((a,b) => b[1] - a[1])[0];
+
+            document.getElementById('mejorVendedor').innerHTML = mv ? `<span class="text-blue-900">Vendedor Estrella:</span> ${mv[0]}` : "";
+            document.getElementById('mejorCiudad').innerHTML = mc ? `<span class="text-blue-900">Ciudad Líder:</span> ${mc[0]}` : "";
+            document.getElementById('mejorProducto').innerHTML = mp ? `<span class="text-blue-700">Top Producto:</span> ${mp[0]}` : "";
+
+            // Dibujar Ranking de Productos
+            const top5 = Object.entries(rP).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const container = document.getElementById('listaTopProductos');
+            container.innerHTML = top5.map(([name, val], i) => `
+                <div class="flex justify-between items-center text-[10px] font-bold">
+                    <span class="truncate pr-2">${i+1}. ${name}</span>
+                    <span class="text-blue-700 whitespace-nowrap">${val.toLocaleString()} Kg</span>
+                </div>
+                <div class="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full" style="width: ${(val/top5[0][1]*100)}%"></div>
+                </div>
+            `).join('');
+
             actualizarGrafico(datosGrafico);
         }
 
@@ -186,7 +211,7 @@
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: labels, datasets: [{ label: 'Kilos', data: labels.map(l => datos[l]), backgroundColor: '#1e40af', borderRadius: 12 }] },
+                data: { labels: labels, datasets: [{ label: 'Kilos', data: labels.map(l => datos[l]), backgroundColor: '#1e40af', borderRadius: 8 }] },
                 options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
         }
@@ -202,7 +227,8 @@
             const t = document.getElementById('totalDisplay').innerText;
             const v = document.getElementById('mejorVendedor').innerText;
             const c = document.getElementById('mejorCiudad').innerText;
-            const txt = `🍚 *REPORTE DISTRILECO*\n📊 *Kilos:* ${t}\n🥇 *${v}*\n📍 *${c}*\n_Vibras Positivas_`;
+            const p = document.getElementById('mejorProducto').innerText;
+            const txt = `🍚 *REPORTE BI DISTRILECO*\n📊 *Kilos:* ${t}\n🥇 *${v}*\n📍 *${c}*\n🌾 *${p}*\n_Vibras Positivas_`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
