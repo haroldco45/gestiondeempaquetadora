@@ -18,12 +18,12 @@
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LECTURA DESDE FILA 2 - PESTAÑA: data)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 REPOSITORIO ACTIVO (PESTAÑA: data - DESDE FILA 2)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA ANALIZAR PESTAÑA DATA</p>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO NUEVA CARGA...</p>
                 <button onclick="borrarTodo()" class="bg-red-100 text-red-600 text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-200 uppercase">
-                    <i class="fas fa-sync mr-1"></i> Reset de Sistema
+                    <i class="fas fa-sync mr-1"></i> Limpiar Sistema
                 </button>
             </div>
         </div>
@@ -44,14 +44,14 @@
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs border-none outline-none"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 uppercase text-[11px] mt-4">
-                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Enviar a Harold
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Reporte a Harold
                 </button>
             </div>
 
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1">Total Kilos Despachados</p>
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 italic">Kilos Despachados</p>
                         <h2 id="totalDisplay" class="text-4xl font-black italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
@@ -70,7 +70,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">© 2026 VIBRAS POSITIVAS HM - Tecnología Distrileco</p>
     </footer>
 
     <script>
@@ -78,13 +78,13 @@
         let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const saved = localStorage.getItem('distrileco_v23_final');
+            const saved = localStorage.getItem('distrileco_v_final_vp');
             if(saved) { baseDatos = JSON.parse(saved); activarDashboard(); }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ LEYENDO COLUMNAS DE 'data'...";
+            status.innerText = "⏳ LEYENDO REPOSITORIO...";
             const reader = new FileReader();
             
             reader.onload = (evt) => {
@@ -93,11 +93,11 @@
                     const sheetName = workbook.SheetNames.find(n => n.trim().toLowerCase() === "data");
                     
                     if(!sheetName) {
-                        status.innerText = "❌ ERROR: NO SE ENCONTRÓ LA PESTAÑA 'data'";
+                        status.innerText = "❌ ERROR: NO SE ENCONTRÓ PESTAÑA 'data'";
                         return;
                     }
 
-                    // range: 1 le dice al sistema que empiece en la Fila 2 (donde están tus títulos)
+                    // Lectura desde fila 2 para capturar encabezados reales
                     const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { range: 1 });
 
                     baseDatos = json.map(columna => {
@@ -112,13 +112,11 @@
                         };
                     }).filter(r => r.mes !== "" && r.cant > 0);
 
-                    if (baseDatos.length === 0) throw "Vacío";
-
-                    localStorage.setItem('distrileco_v23_final', JSON.stringify(baseDatos));
-                    status.innerText = `✅ EXITO: ${baseDatos.length} REGISTROS CARGADOS`;
+                    localStorage.setItem('distrileco_v_final_vp', JSON.stringify(baseDatos));
+                    status.innerText = `✅ ÉXITO: ${baseDatos.length} REGISTROS CARGADOS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR AL LEER COLUMNAS (REVISA LA FILA 2)";
+                    status.innerText = "❌ ERROR AL LEER COLUMNAS";
                 }
             };
             reader.readAsBinaryString(e.target.files[0]);
@@ -189,7 +187,7 @@
             const top = Object.entries(dU).sort((a,b) => b[1]-a[1]).slice(0,8);
             chartUnidades = new Chart(document.getElementById('graficoUnidades'), {
                 type: 'bar',
-                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Unidades', data: top.map(x => x[1]), backgroundColor: '#10b981' }] },
+                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Cant', data: top.map(x => x[1]), backgroundColor: '#10b981' }] },
                 options: { indexAxis: 'y' }
             });
         }
@@ -198,7 +196,7 @@
 
         function enviarWhatsApp() {
             const t = document.getElementById('totalDisplay').innerText;
-            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso: ${t}\nHecho por Vibras Positivas HM`;
+            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso Total: ${t}\nHecho por Vibras Positivas HM`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
