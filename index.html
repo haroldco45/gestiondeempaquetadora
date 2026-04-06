@@ -18,10 +18,10 @@
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LECTURA EXCLUSIVA PESTAÑA: data)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LECTURA PESTAÑA: data)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA LA PESTAÑA DATA</p>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO PESTAÑA 'data'...</p>
                 <button onclick="borrarTodo()" class="bg-red-100 text-red-600 text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-200 uppercase">
                     <i class="fas fa-sync mr-1"></i> Reset Total
                 </button>
@@ -30,13 +30,13 @@
 
         <div id="dashboardUI" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
             <div class="lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400 h-fit">
-                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Operativos</h3>
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Activos</h3>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs border-none outline-none"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Selección)</label>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl+Clic)</label>
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none shadow-inner"></select>
                 </div>
                 <div>
@@ -55,7 +55,7 @@
                         <h2 id="totalDisplay" class="text-4xl font-black italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Métricas de Columnas:</h4>
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Resultados Actuales:</h4>
                         <p id="mejorVendedor" class="text-xs font-bold text-gray-600 uppercase">Vendedor: ---</p>
                         <p id="mejorCiudad" class="text-xs font-bold text-gray-600 uppercase">Ciudad: ---</p>
                     </div>
@@ -73,7 +73,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">Hecho por Vibras Positivas HM - (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - (3117700431)</p>
     </footer>
 
     <script>
@@ -81,47 +81,48 @@
         let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const data = localStorage.getItem('distrileco_master_v13');
+            const data = localStorage.getItem('distrileco_v15_data_fix');
             if(data) { baseDatos = JSON.parse(data); activarDashboard(); }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ ESCANEANDO PESTAÑA 'data'...";
+            status.innerText = "⏳ CARGANDO PESTAÑA 'data'...";
             const reader = new FileReader();
             
             reader.onload = (evt) => {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+                    
+                    // BUSQUEDA DE LA PESTAÑA 'data'
                     const sheetName = workbook.SheetNames.find(n => n.trim().toLowerCase() === "data");
                     
                     if(!sheetName) {
-                        status.innerText = "❌ ERROR: NO EXISTE LA PESTAÑA 'data'";
+                        status.innerText = "❌ ERROR: NO SE ENCONTRÓ LA PESTAÑA 'data'";
                         return;
                     }
 
-                    // Convertimos la pestaña a un formato que el sistema entienda por columnas
-                    const dataJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-                    baseDatos = dataJson.map(columna => {
+                    baseDatos = json.map(fila => {
                         return {
-                            mes: (columna.mes || "").toString().trim(),
-                            vendedor: (columna.nomvendedor || "").toString().trim(),
-                            ref: (columna.referencia || "").toString().trim(),
-                            prod: (columna.nombre_producto || "").toString().trim(),
-                            cant: parseFloat(columna.cantidad) || 0,
-                            peso: parseFloat(columna.PESO) || 0,
-                            ciudad: (columna.ciudad || "").toString().trim()
+                            mes: (fila.mes || "").toString().trim(),
+                            vendedor: (fila.nomvendedor || "").toString().trim(),
+                            ref: (fila.referencia || "").toString().trim(),
+                            prod: (fila.nombre_producto || "").toString().trim(),
+                            cant: parseFloat(fila.cantidad) || 0,
+                            peso: parseFloat(fila.PESO) || 0,
+                            ciudad: (fila.ciudad || "").toString().trim()
                         };
                     }).filter(f => f.mes !== "" && f.cant > 0);
 
-                    if (!baseDatos.length) throw "Error de lectura";
+                    if (baseDatos.length === 0) throw "Vacío";
 
-                    localStorage.setItem('distrileco_master_v13', JSON.stringify(baseDatos));
-                    status.innerText = `✅ EXITO: ${baseDatos.length} REGISTROS CARGADOS`;
+                    localStorage.setItem('distrileco_v15_data_fix', JSON.stringify(baseDatos));
+                    status.innerText = `✅ ÉXITO: ${baseDatos.length} FILAS PROCESADAS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR AL LEER LAS COLUMNAS DE 'data'";
+                    status.innerText = "❌ ERROR AL LEER COLUMNAS DE 'data'";
                 }
             };
             reader.readAsBinaryString(e.target.files[0]);
@@ -204,5 +205,10 @@
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </body>
 </html>
