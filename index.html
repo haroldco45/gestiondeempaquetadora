@@ -19,44 +19,44 @@
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (Detectando Columna C: Referencia)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 1. CARGAR EXCEL (MOTOR FLEXIBLE V6)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO ARCHIVO...</p>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA ESCANEAR</p>
                 <button onclick="borrarTodo()" class="bg-red-100 text-red-600 text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-200 transition-all uppercase italic">
-                    <i class="fas fa-trash-alt mr-1"></i> Limpieza de Memoria
+                    <i class="fas fa-trash-alt mr-1"></i> Reset Total
                 </button>
             </div>
         </div>
 
         <div id="dashboardUI" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
             <div class="lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400 h-fit">
-                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Activos</h3>
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Panel de Control</h3>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl + Clic)</label>
-                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none shadow-inner"></select>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses</label>
+                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none"></select>
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Ref - Producto</label>
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px] mt-4">
-                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Reporte a Harold
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Enviar a Gerencia
                 </button>
             </div>
 
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Kilos Despachados</p>
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1 tracking-widest italic">Peso Consolidado</p>
                         <h2 id="totalDisplay" class="text-4xl font-black tracking-tighter italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter">Métricas Clave:</h4>
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter">Resumen Operativo:</h4>
                         <div id="analisisNotas" class="text-xs space-y-1 font-bold text-gray-600 italic uppercase">
                             <p id="mejorVendedor">Vendedor: ---</p>
                             <p id="mejorCiudad">Ciudad: ---</p>
@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase mb-2 text-center">Evolución Mensual (Kilos)</h3>
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase mb-2 text-center">Kilos por Mes</h3>
                     <canvas id="miGrafico" height="120"></canvas>
                 </div>
 
@@ -78,70 +78,67 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">© 2026 VIBRAS POSITIVAS HM - Tecnología para Distrileco</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic tracking-widest italic">VIBRAS POSITIVAS HM - 3117700431</p>
     </footer>
 
     <script>
         let baseDatos = [];
-        let chartKilos = null;
-        let chartUnidades = null;
+        let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const saved = localStorage.getItem('distrileco_v5_full');
-            if(saved) {
-                baseDatos = JSON.parse(saved);
-                document.getElementById('status').innerText = "✅ MEMORIA CARGADA";
+            const data = localStorage.getItem('distrileco_v6');
+            if(data) {
+                baseDatos = JSON.parse(data);
+                document.getElementById('status').innerText = "✅ MEMORIA ACTIVA";
                 activarDashboard();
             }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
             const status = document.getElementById('status');
-            status.innerText = "⏳ PROCESANDO...";
-            
+            status.innerText = "⏳ ESCANEANDO COLUMNAS...";
             const reader = new FileReader();
+            
             reader.onload = (evt) => {
                 try {
-                    const data = evt.target.result;
-                    const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
-                    const firstSheet = workbook.SheetNames[0];
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: "" });
+                    const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet);
 
                     baseDatos = json.map(row => {
-                        let obj = { mes: "", vendedor: "", referencia: "", producto_base: "", cantidad: 0, peso: 0, ciudad: "" };
+                        let d = { mes: "", vendedor: "", ref: "", prod: "", cant: 0, peso: 0, ciudad: "" };
                         
-                        for (let key in row) {
-                            let cleanKey = key.toString().toLowerCase().trim().replace(/[^a-z_]/g, '');
-                            let value = row[key];
+                        // Buscador flexible por palabras clave en los encabezados
+                        Object.keys(row).forEach(key => {
+                            const k = key.toLowerCase().trim();
+                            const val = row[key];
 
-                            if (cleanKey === "mes") obj.mes = value.toString().trim();
-                            if (cleanKey === "nomvendedor" || cleanKey === "vendedor") obj.vendedor = value.toString().trim();
-                            if (cleanKey === "referencia") obj.referencia = value.toString().trim();
-                            if (cleanKey === "nombre_producto" || cleanKey === "producto") obj.producto_base = value.toString().trim();
-                            if (cleanKey === "cantidad") obj.cantidad = parseFloat(value) || 0;
-                            if (cleanKey === "peso") obj.peso = parseFloat(value) || 0;
-                            if (cleanKey === "ciudad") obj.ciudad = value.toString().trim();
-                        }
-                        
-                        // Combinación robusta de nombre
-                        obj.producto = (obj.referencia ? obj.referencia + " - " : "") + (obj.producto_base || "S.N");
-                        return obj;
-                    }).filter(item => item.mes !== "" && item.cantidad !== 0);
+                            if (k.includes("mes")) d.mes = val.toString().trim();
+                            if (k.includes("vendedor") || k.includes("nomvendedor")) d.vendedor = val.toString().trim();
+                            if (k.includes("referencia")) d.ref = val.toString().trim();
+                            if (k.includes("producto") || k.includes("nombre")) d.prod = val.toString().trim();
+                            if (k.includes("cantidad")) d.cant = parseFloat(val) || 0;
+                            if (k.includes("peso")) d.peso = parseFloat(val) || 0;
+                            if (k.includes("ciudad")) d.ciudad = val.toString().trim();
+                        });
 
-                    if (baseDatos.length === 0) throw "No se encontraron datos válidos";
+                        d.id_full = (d.ref ? d.ref + " - " : "") + d.prod;
+                        return d;
+                    }).filter(f => f.mes !== "" && f.cant > 0);
 
-                    localStorage.setItem('distrileco_v5_full', JSON.stringify(baseDatos));
-                    status.innerText = `✅ ${baseDatos.length} REGISTROS CARGADOS`;
+                    if(baseDatos.length === 0) {
+                        status.innerText = "❌ ERROR: NO SE RECONOCEN COLUMNAS";
+                        return;
+                    }
+
+                    localStorage.setItem('distrileco_v6', JSON.stringify(baseDatos));
+                    status.innerText = `✅ EXITO: ${baseDatos.length} LINEAS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR: VERIFICA EL EXCEL";
-                    console.error(err);
+                    status.innerText = "❌ ERROR AL PROCESAR";
                 }
             };
-            reader.readAsBinaryString(file);
+            reader.readAsBinaryString(e.target.files[0]);
         });
 
         function activarDashboard() {
@@ -155,99 +152,91 @@
             baseDatos.forEach(d => {
                 if(d.vendedor) vSet.add(d.vendedor);
                 if(d.mes) mSet.add(d.mes);
-                if(d.producto) pSet.add(d.producto);
+                if(d.id_full) pSet.add(d.id_full);
             });
-            poblarSelect('selVendedor', [...vSet].sort());
-            poblarSelect('selMes', [...mSet].sort().reverse(), true);
-            poblarSelect('selProducto', [...pSet].sort());
+            poblar('selVendedor', [...vSet].sort());
+            poblar('selMes', [...mSet].sort().reverse(), true);
+            poblar('selProducto', [...pSet].sort());
         }
 
-        function poblarSelect(id, array, isMulti = false) {
-            const select = document.getElementById(id);
-            select.innerHTML = "";
-            array.forEach(val => {
-                let opt = new Option(val, val);
-                if(isMulti) opt.selected = true;
-                select.add(opt);
+        function poblar(id, arr, multi = false) {
+            const s = document.getElementById(id);
+            s.innerHTML = "";
+            arr.forEach(v => {
+                let o = new Option(v, v);
+                if(multi) o.selected = true;
+                s.add(o);
             });
         }
 
         function calcular() {
-            const vend = document.getElementById('selVendedor').value;
-            const prod = document.getElementById('selProducto').value;
+            const v = document.getElementById('selVendedor').value;
+            const p = document.getElementById('selProducto').value;
             const meses = Array.from(document.getElementById('selMes').selectedOptions).map(o => o.value);
 
-            let totalKilos = 0, histKilos = {}, topProd = {}, rankVend = {}, rankCiu = {};
+            let totalK = 0, dK = {}, dU = {}, rV = {}, rC = {};
 
             baseDatos.forEach(d => {
-                const matchV = (vend === '-- TODOS --' || d.vendedor === vend);
-                const matchP = (prod === '-- TODOS --' || d.producto === prod);
+                const matchV = (v === '-- TODOS --' || d.vendedor === v);
+                const matchP = (p === '-- TODOS --' || d.id_full === p);
                 const matchM = meses.includes(d.mes);
 
                 if(matchV && matchP && matchM) {
-                    const kilos = d.cantidad * d.peso;
-                    totalKilos += kilos;
-                    histKilos[d.mes] = (histKilos[d.mes] || 0) + kilos;
-                    topProd[d.producto] = (topProd[d.producto] || 0) + d.cantidad;
-                    rankVend[d.vendedor] = (rankVend[d.vendedor] || 0) + kilos;
-                    rankCiu[d.ciudad] = (rankCiu[d.ciudad] || 0) + kilos;
+                    const kilos = d.cant * d.peso;
+                    totalK += kilos;
+                    dK[d.mes] = (dK[d.mes] || 0) + kilos;
+                    dU[d.id_full] = (dU[d.id_full] || 0) + d.cant;
+                    rV[d.vendedor] = (rV[d.vendedor] || 0) + kilos;
+                    rC[d.ciudad] = (rC[d.ciudad] || 0) + kilos;
                 }
             });
 
-            document.getElementById('totalDisplay').innerText = totalKilos.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
-            
-            const bestV = Object.entries(rankVend).sort((a,b) => b[1]-a[1])[0];
-            const bestC = Object.entries(rankCiu).sort((a,b) => b[1]-a[1])[0];
+            document.getElementById('totalDisplay').innerText = totalK.toLocaleString('es-CO') + " Kg";
+            const mv = Object.entries(rV).sort((a,b) => b[1]-a[1])[0];
+            const mc = Object.entries(rC).sort((a,b) => b[1]-a[1])[0];
+            document.getElementById('mejorVendedor').innerText = mv ? `ESTRELLA: ${mv[0]}` : "Vendedor: ---";
+            document.getElementById('mejorCiudad').innerText = mc ? `LÍDER: ${mc[0]}` : "Ciudad: ---";
 
-            document.getElementById('mejorVendedor').innerText = bestV ? `VENDEDOR: ${bestV[0]}` : "VENDEDOR: ---";
-            document.getElementById('mejorCiudad').innerText = bestC ? `CIUDAD: ${bestC[0]}` : "CIUDAD: ---";
-
-            renderCharts(histKilos, topProd);
+            renderGraficos(dK, dU);
         }
 
-        function renderCharts(kData, pData) {
-            const ctxK = document.getElementById('miGrafico').getContext('2d');
+        function renderGraficos(dK, dU) {
+            const ctxK = document.getElementById('miGrafico');
             if(chartKilos) chartKilos.destroy();
-            const sortedMeses = Object.keys(kData).sort();
             chartKilos = new Chart(ctxK, {
                 type: 'bar',
                 data: {
-                    labels: sortedMeses,
-                    datasets: [{ label: 'Kilos', data: sortedMeses.map(k => kData[k]), backgroundColor: '#1e40af', borderRadius: 8 }]
+                    labels: Object.keys(dK).sort(),
+                    datasets: [{ label: 'Kilos', data: Object.keys(dK).sort().map(k => dK[k]), backgroundColor: '#1e40af', borderRadius: 8 }]
                 },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
 
-            const ctxU = document.getElementById('graficoUnidades').getContext('2d');
+            const ctxU = document.getElementById('graficoUnidades');
             if(chartUnidades) chartUnidades.destroy();
-            const top8 = Object.entries(pData).sort((a,b) => b[1]-a[1]).slice(0,8);
+            const top = Object.entries(dU).sort((a,b) => b[1]-a[1]).slice(0,8);
             chartUnidades = new Chart(ctxU, {
                 type: 'bar',
                 data: {
-                    labels: top8.map(x => x[0]),
-                    datasets: [{ label: 'Unidades', data: top8.map(x => x[1]), backgroundColor: '#10b981', borderRadius: 5 }]
+                    labels: top.map(x => x[0]),
+                    datasets: [{ label: 'Cant', data: top.map(x => x[1]), backgroundColor: '#10b981', borderRadius: 5 }]
                 },
                 options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
             });
         }
 
         function borrarTodo() {
-            if(confirm("¿Limpiar todos los datos cargados?")) {
+            if(confirm("¿Limpiar sistema?")) {
                 localStorage.clear();
                 location.reload();
             }
         }
 
         function enviarWhatsApp() {
-            const peso = document.getElementById('totalDisplay').innerText;
-            const texto = `🍚 REPORTE DISTRILECO\n--------------------------\n📊 Peso Despachado: ${peso}\n\nApp por: Vibras Positivas HM`;
-            window.open(`https://wa.me/3117700431?text=${encodeURIComponent(texto)}`, '_blank');
+            const t = document.getElementById('totalDisplay').innerText;
+            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso Despachado: ${t}\n\nApp por: Vibras Positivas HM`;
+            window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
-
-    <style>
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
 </body>
 </html>
