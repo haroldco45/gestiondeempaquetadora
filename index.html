@@ -70,7 +70,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">Hecho por Vibras Positivas HM - (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - (3117700431)</p>
     </footer>
 
     <script>
@@ -78,13 +78,13 @@
         let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const saved = localStorage.getItem('distrileco_v22_final');
+            const saved = localStorage.getItem('distrileco_v23_final');
             if(saved) { baseDatos = JSON.parse(saved); activarDashboard(); }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ LEYENDO FILA 2 DE 'data'...";
+            status.innerText = "⏳ LEYENDO COLUMNAS DE 'data'...";
             const reader = new FileReader();
             
             reader.onload = (evt) => {
@@ -97,28 +97,28 @@
                         return;
                     }
 
-                    // range: 1 lee desde la fila 2 (ignora fila 1)
+                    // range: 1 le dice al sistema que empiece en la Fila 2 (donde están tus títulos)
                     const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { range: 1 });
 
-                    baseDatos = json.map(col => {
+                    baseDatos = json.map(columna => {
                         return {
-                            mes: (col.mes || "").toString().trim(),
-                            vendedor: (col.nomvendedor || "").toString().trim(),
-                            ref: (col.referencia || "").toString().trim(),
-                            prod: (col.nombre_producto || "").toString().trim(),
-                            cant: parseFloat(col.cantidad) || 0,
-                            peso: parseFloat(col.PESO) || 0,
-                            ciudad: (col.ciudad || "").toString().trim()
+                            mes: (columna.mes || "").toString().trim(),
+                            vendedor: (columna.nomvendedor || "").toString().trim(),
+                            ref: (columna.referencia || "").toString().trim(),
+                            prod: (columna.nombre_producto || "").toString().trim(),
+                            cant: parseFloat(columna.cantidad) || 0,
+                            peso: parseFloat(columna.PESO) || 0,
+                            ciudad: (columna.ciudad || "").toString().trim()
                         };
                     }).filter(r => r.mes !== "" && r.cant > 0);
 
                     if (baseDatos.length === 0) throw "Vacío";
 
-                    localStorage.setItem('distrileco_v22_final', JSON.stringify(baseDatos));
-                    status.innerText = `✅ ÉXITO: ${baseDatos.length} REGISTROS CARGADOS`;
+                    localStorage.setItem('distrileco_v23_final', JSON.stringify(baseDatos));
+                    status.innerText = `✅ EXITO: ${baseDatos.length} REGISTROS CARGADOS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR: VERIFICA QUE 'data' TENGA TÍTULOS EN FILA 2";
+                    status.innerText = "❌ ERROR AL LEER COLUMNAS (REVISA LA FILA 2)";
                 }
             };
             reader.readAsBinaryString(e.target.files[0]);
@@ -189,7 +189,7 @@
             const top = Object.entries(dU).sort((a,b) => b[1]-a[1]).slice(0,8);
             chartUnidades = new Chart(document.getElementById('graficoUnidades'), {
                 type: 'bar',
-                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Cant', data: top.map(x => x[1]), backgroundColor: '#10b981' }] },
+                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Unidades', data: top.map(x => x[1]), backgroundColor: '#10b981' }] },
                 options: { indexAxis: 'y' }
             });
         }
