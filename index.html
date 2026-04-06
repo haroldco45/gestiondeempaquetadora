@@ -18,7 +18,7 @@
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LEER COLUMNAS DE PESTAÑA: data)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LECTURA DESDE FILA 2 - PESTAÑA: data)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
                 <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO DATA...</p>
@@ -51,7 +51,7 @@
             <div class="lg:col-span-3 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-800 text-white p-6 rounded-[2rem] shadow-2xl text-center flex flex-col justify-center">
-                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1">Total Kilos</p>
+                        <p class="text-[10px] font-bold opacity-70 uppercase mb-1">Total Kilos Despachados</p>
                         <h2 id="totalDisplay" class="text-4xl font-black italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
@@ -70,7 +70,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">Hecho por Vibras Positivas HM - (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - (3117700431)</p>
     </footer>
 
     <script>
@@ -78,13 +78,13 @@
         let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const savedData = localStorage.getItem('distrileco_v18_final');
+            const savedData = localStorage.getItem('distrileco_v19_fila2');
             if(savedData) { baseDatos = JSON.parse(savedData); activarDashboard(); }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ PROCESANDO COLUMNAS...";
+            status.innerText = "⏳ LEYENDO DESDE FILA 2...";
             const reader = new FileReader();
             
             reader.onload = (evt) => {
@@ -97,28 +97,28 @@
                         return;
                     }
 
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                    // range: 1 le dice a la librería que los títulos están en la fila 2 (índice 1)
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { range: 1 });
 
-                    // Aquí 'item' representa un registro que contiene los datos de las columnas
-                    baseDatos = json.map(item => {
+                    baseDatos = json.map(columna => {
                         return {
-                            mes: (item.mes || "").toString().trim(),
-                            vendedor: (item.nomvendedor || "").toString().trim(),
-                            ref: (item.referencia || "").toString().trim(),
-                            prod: (item.nombre_producto || "").toString().trim(),
-                            cant: parseFloat(item.cantidad) || 0,
-                            peso: parseFloat(item.PESO) || 0,
-                            ciudad: (item.ciudad || "").toString().trim()
+                            mes: (columna.mes || "").toString().trim(),
+                            vendedor: (columna.nomvendedor || "").toString().trim(),
+                            ref: (columna.referencia || "").toString().trim(),
+                            prod: (columna.nombre_producto || "").toString().trim(),
+                            cant: parseFloat(columna.cantidad) || 0,
+                            peso: parseFloat(columna.PESO) || 0,
+                            ciudad: (columna.ciudad || "").toString().trim()
                         };
                     }).filter(registro => registro.mes !== "" && registro.cant > 0);
 
                     if (baseDatos.length === 0) throw "Sin datos";
 
-                    localStorage.setItem('distrileco_v18_final', JSON.stringify(baseDatos));
-                    status.innerText = `✅ EXITO: ${baseDatos.length} REGISTROS CARGADOS`;
+                    localStorage.setItem('distrileco_v19_fila2', JSON.stringify(baseDatos));
+                    status.innerText = `✅ ÉXITO: ${baseDatos.length} REGISTROS CARGADOS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR: REVISA LAS COLUMNAS DE LA PESTAÑA 'data'";
+                    status.innerText = "❌ ERROR: VERIFICA QUE LOS TÍTULOS ESTÉN EN LA FILA 2";
                 }
             };
             reader.readAsBinaryString(e.target.files[0]);
@@ -133,7 +133,9 @@
         function llenarFiltros() {
             const vSet = new Set(['-- TODOS --']), mSet = new Set(), pSet = new Set(['-- TODOS --']);
             baseDatos.forEach(d => {
-                vSet.add(d.vendedor); mSet.add(d.mes); pSet.add(`${d.ref} - ${d.prod}`);
+                if(d.vendedor) vSet.add(d.vendedor);
+                if(d.mes) mSet.add(d.mes);
+                pSet.add(`${d.ref} - ${d.prod}`);
             });
             poblar('selVendedor', [...vSet].sort());
             poblar('selMes', [...mSet].sort().reverse(), true);
@@ -181,13 +183,13 @@
             if(chartKilos) chartKilos.destroy();
             chartKilos = new Chart(document.getElementById('miGrafico'), {
                 type: 'bar',
-                data: { labels: Object.keys(dK).sort(), datasets: [{ label: 'Kilos', data: Object.values(dK), backgroundColor: '#1e40af' }] }
+                data: { labels: Object.keys(dK).sort(), datasets: [{ label: 'Kilos', data: Object.values(dK), backgroundColor: '#1e40af', borderRadius: 8 }] }
             });
             if(chartUnidades) chartUnidades.destroy();
             const top = Object.entries(dU).sort((a,b) => b[1]-a[1]).slice(0,8);
             chartUnidades = new Chart(document.getElementById('graficoUnidades'), {
                 type: 'bar',
-                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Cant', data: top.map(x => x[1]), backgroundColor: '#10b981' }] },
+                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Cant', data: top.map(x => x[1]), backgroundColor: '#10b981', borderRadius: 5 }] },
                 options: { indexAxis: 'y' }
             });
         }
