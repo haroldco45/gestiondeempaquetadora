@@ -19,7 +19,7 @@
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 1. CARGAR EXCEL ACTUALIZADO (HOJA 1)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 1. CARGAR EXCEL (INCLUYE COLUMNA REFERENCIA)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
                 <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO ARCHIVO...</p>
@@ -41,11 +41,11 @@
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none focus:border-blue-500 shadow-inner"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase">Producto (Ref + Nombre)</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase">Referencia / Producto</label>
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px] mt-4">
-                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Reporte a Gerencia
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i> Reporte a Harold
                 </button>
             </div>
 
@@ -87,7 +87,7 @@
         let chartUnidades = null;
 
         window.onload = () => {
-            const saved = localStorage.getItem('distrileco_v3_ref');
+            const saved = localStorage.getItem('distrileco_v4_full');
             if(saved) {
                 baseDatos = JSON.parse(saved);
                 document.getElementById('status').innerText = "✅ DATOS EN MEMORIA";
@@ -98,6 +98,7 @@
         document.getElementById('upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
             const status = document.getElementById('status');
             status.innerText = "⏳ PROCESANDO...";
             
@@ -111,27 +112,26 @@
 
                     baseDatos = json.map(row => {
                         let obj = {};
-                        // Mapeo con captura de Referencia (Columna C)
                         for (let key in row) {
                             let cleanKey = key.toString().toLowerCase().trim().replace(/[^a-z_]/g, '');
                             if (cleanKey === "mes") obj.mes = row[key];
                             if (cleanKey === "nomvendedor" || cleanKey === "vendedor") obj.vendedor = row[key];
-                            if (cleanKey === "nombre_producto" || cleanKey === "producto") obj.producto_nombre = row[key];
                             if (cleanKey === "referencia") obj.referencia = row[key].toString().trim();
+                            if (cleanKey === "nombre_producto" || cleanKey === "producto") obj.producto_base = row[key];
                             if (cleanKey === "cantidad") obj.cantidad = parseFloat(row[key]) || 0;
                             if (cleanKey === "peso") obj.peso = parseFloat(row[key]) || 0;
                             if (cleanKey === "ciudad") obj.ciudad = row[key];
                         }
-                        // Combinar Ref + Nombre para identificación exacta
-                        obj.producto_full = (obj.referencia ? obj.referencia + " - " : "") + (obj.producto_nombre || "SIN NOMBRE");
+                        // Creamos el nombre completo usando la columna Referencia
+                        obj.producto = (obj.referencia ? obj.referencia + " - " : "") + (obj.producto_base || "");
                         return obj;
                     }).filter(item => item.mes);
 
-                    localStorage.setItem('distrileco_v3_ref', JSON.stringify(baseDatos));
+                    localStorage.setItem('distrileco_v4_full', JSON.stringify(baseDatos));
                     status.innerText = `✅ ${baseDatos.length} REGISTROS CARGADOS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR AL LEER ARCHIVO";
+                    status.innerText = "❌ ERROR: VERIFICA EL FORMATO";
                     console.error(err);
                 }
             };
@@ -149,7 +149,7 @@
             baseDatos.forEach(d => {
                 if(d.vendedor) vSet.add(d.vendedor);
                 if(d.mes) mSet.add(d.mes.toString());
-                if(d.producto_full) pSet.add(d.producto_full);
+                if(d.producto) pSet.add(d.producto);
             });
             poblarSelect('selVendedor', [...vSet].sort());
             poblarSelect('selMes', [...mSet].sort(), true);
@@ -175,14 +175,14 @@
 
             baseDatos.forEach(d => {
                 const matchV = (vend === '-- TODOS --' || d.vendedor === vend);
-                const matchP = (prod === '-- TODOS --' || d.producto_full === prod);
+                const matchP = (prod === '-- TODOS --' || d.producto === prod);
                 const matchM = meses.includes(d.mes?.toString());
 
                 if(matchV && matchP && matchM) {
                     const kilos = d.cantidad * d.peso;
                     totalKilos += kilos;
                     histKilos[d.mes] = (histKilos[d.mes] || 0) + kilos;
-                    topProd[d.producto_full] = (topProd[d.producto_full] || 0) + d.cantidad;
+                    topProd[d.producto] = (topProd[d.producto] || 0) + d.cantidad;
                     rankVend[d.vendedor] = (rankVend[d.vendedor] || 0) + kilos;
                     rankCiu[d.ciudad] = (rankCiu[d.ciudad] || 0) + kilos;
                 }
@@ -223,7 +223,7 @@
         }
 
         function borrarTodo() {
-            if(confirm("¿Seguro que deseas borrar la memoria?")) {
+            if(confirm("¿Deseas limpiar toda la memoria?")) {
                 localStorage.clear();
                 location.reload();
             }
