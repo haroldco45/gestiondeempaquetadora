@@ -18,25 +18,25 @@
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LECTURA: Hoja1)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (BUSCANDO DETALLE EN HOJA1)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO Hoja1...</p>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA PROCESAR...</p>
                 <button onclick="borrarTodo()" class="bg-red-100 text-red-600 text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-200 uppercase">
                     <i class="fas fa-sync mr-1"></i> Reset Total
                 </button>
             </div>
         </div>
 
-        <div id="dashboardUI" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div id="dashboardUI" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
             <div class="lg:col-span-1 space-y-4 bg-white p-6 rounded-3xl shadow-lg border-l-8 border-yellow-400 h-fit">
-                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros Operativos</h3>
+                <h3 class="font-black text-blue-900 text-xs border-b pb-2 uppercase italic text-center">Filtros</h3>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase">Vendedor</label>
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs border-none outline-none"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses</label>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Selección)</label>
                     <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none"></select>
                 </div>
                 <div>
@@ -55,7 +55,7 @@
                         <h2 id="totalDisplay" class="text-4xl font-black italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Métricas Clave:</h4>
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Líderes de Operación:</h4>
                         <p id="mejorVendedor" class="text-xs font-bold text-gray-600 uppercase">Vendedor: ---</p>
                         <p id="mejorCiudad" class="text-xs font-bold text-gray-600 uppercase">Ciudad: ---</p>
                     </div>
@@ -71,7 +71,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">© 2026 Vibras Positivas HM - Derechos de Autor (3117700431)</p>
     </footer>
 
     <script>
@@ -79,42 +79,52 @@
         let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const data = localStorage.getItem('distrileco_master_v9');
+            const data = localStorage.getItem('distrileco_v10_final');
             if(data) { baseDatos = JSON.parse(data); activarDashboard(); }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ PROCESANDO Hoja1...";
+            status.innerText = "⏳ ANALIZANDO HOJAS...";
             const reader = new FileReader();
             
             reader.onload = (evt) => {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    // Busca Hoja1 sin importar mayúsculas o espacios
-                    const name = workbook.SheetNames.find(n => n.trim().toLowerCase() === "hoja1") || workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[name];
-                    const json = XLSX.utils.sheet_to_json(sheet);
+                    
+                    // BUSQUEDA INTELIGENTE: Buscamos la hoja que tenga la columna "nomvendedor" o "referencia"
+                    let sheetToUse = null;
+                    for(let name of workbook.SheetNames) {
+                        const tempJson = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1 });
+                        if(tempJson.length > 0 && JSON.stringify(tempJson[0]).toLowerCase().includes("vendedor")) {
+                            sheetToUse = workbook.Sheets[name];
+                            break;
+                        }
+                    }
+
+                    if(!sheetToUse) sheetToUse = workbook.Sheets["Hoja1"] || workbook.Sheets[workbook.SheetNames[0]];
+                    
+                    const json = XLSX.utils.sheet_to_json(sheetToUse);
 
                     baseDatos = json.map(row => {
                         return {
                             mes: (row.mes || "").toString().trim(),
-                            vendedor: (row.nomvendedor || row.Vendedor || "S.V").toString().trim(),
+                            vendedor: (row.nomvendedor || row.Vendedor || "SIN NOMBRE").toString().trim(),
                             ref: (row.referencia || "").toString().trim(),
-                            prod: (row.nombre_producto || "").toString().trim(),
+                            prod: (row.nombre_producto || row.PRODUCTO || "").toString().trim(),
                             cant: parseFloat(row.cantidad) || 0,
                             peso: parseFloat(row.PESO) || parseFloat(row.peso) || 0,
                             ciudad: (row.ciudad || "").toString().trim()
                         };
-                    }).filter(f => f.mes !== "" && f.cant > 0);
+                    }).filter(f => f.mes !== "" && f.cant > 0 && f.peso > 0);
 
-                    if (!baseDatos.length) throw "Error de datos";
+                    if (!baseDatos.length) throw "No se encontraron datos de transacciones";
 
-                    localStorage.setItem('distrileco_master_v9', JSON.stringify(baseDatos));
-                    status.innerText = `✅ EXITO: ${baseDatos.length} REGISTROS`;
+                    localStorage.setItem('distrileco_v10_final', JSON.stringify(baseDatos));
+                    status.innerText = `✅ ÉXITO: ${baseDatos.length} TRANSACCIONES`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR: NO SE DETECTA LA DATA EN Hoja1";
+                    status.innerText = "❌ ERROR: CARGA LA HOJA DE DETALLE (HOJA1)";
                 }
             };
             reader.readAsBinaryString(e.target.files[0]);
@@ -165,7 +175,7 @@
                 }
             });
 
-            document.getElementById('totalDisplay').innerText = totalK.toLocaleString('es-CO') + " Kg";
+            document.getElementById('totalDisplay').innerText = totalK.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
             const mv = Object.entries(rV).sort((a,b) => b[1]-a[1])[0];
             const mc = Object.entries(rC).sort((a,b) => b[1]-a[1])[0];
             document.getElementById('mejorVendedor').innerText = `Vendedor: ${mv ? mv[0] : '---'}`;
@@ -194,7 +204,7 @@
 
         function enviarWhatsApp() {
             const t = document.getElementById('totalDisplay').innerText;
-            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso: ${t}\nHecho por Vibras Positivas HM`;
+            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso: ${t}\n\nHecho por Vibras Positivas HM`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
