@@ -18,10 +18,10 @@
 
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LEYENDO EXCLUSIVAMENTE PESTAÑA: data)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (LECTURA EXCLUSIVA PESTAÑA: data)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
-                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA PROCESAR PESTAÑA data</p>
+                <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">LISTO PARA LA PESTAÑA DATA</p>
                 <button onclick="borrarTodo()" class="bg-red-100 text-red-600 text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-200 uppercase">
                     <i class="fas fa-sync mr-1"></i> Reset Total
                 </button>
@@ -36,11 +36,11 @@
                     <select id="selVendedor" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs border-none outline-none"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses</label>
-                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none"></select>
+                    <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl+Clic)</label>
+                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none shadow-inner"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase">Referencia - Producto</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase">Producto (Ref - Nombre)</label>
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs border-none outline-none"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 uppercase text-[11px] mt-4">
@@ -55,15 +55,19 @@
                         <h2 id="totalDisplay" class="text-4xl font-black italic">0.00 Kg</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Métricas de la Data:</h4>
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-1 italic">Resultados de la Data:</h4>
                         <p id="mejorVendedor" class="text-xs font-bold text-gray-600 uppercase">Vendedor: ---</p>
                         <p id="mejorCiudad" class="text-xs font-bold text-gray-600 uppercase">Ciudad: ---</p>
                     </div>
                 </div>
+
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase mb-2 text-center">Peso por Mes (Kilos)</h3>
                     <canvas id="miGrafico" height="120"></canvas>
                 </div>
+
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100">
+                    <h3 class="text-[10px] font-black text-blue-900 uppercase mb-2 text-center">Top Unidades por Referencia</h3>
                     <canvas id="graficoUnidades" height="140"></canvas>
                 </div>
             </div>
@@ -71,7 +75,7 @@
     </main>
 
     <footer class="fixed bottom-0 w-full bg-white/95 border-t p-3 text-center">
-        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - Derechos de Autor (3117700431)</p>
+        <p class="text-[10px] font-black text-blue-900 uppercase italic">App desarrollada por Vibras Positivas HM - (3117700431)</p>
     </footer>
 
     <script>
@@ -79,29 +83,28 @@
         let chartKilos = null, chartUnidades = null;
 
         window.onload = () => {
-            const data = localStorage.getItem('distrileco_v11_data');
+            const data = localStorage.getItem('distrileco_v12_exclusive');
             if(data) { baseDatos = JSON.parse(data); activarDashboard(); }
         };
 
         document.getElementById('upload').addEventListener('change', function(e) {
             const status = document.getElementById('status');
-            status.innerText = "⏳ LEYENDO PESTAÑA 'data'...";
+            status.innerText = "⏳ BUSCANDO PESTAÑA 'data'...";
             const reader = new FileReader();
             
             reader.onload = (evt) => {
                 try {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
                     
-                    // FORZAR LECTURA DE PESTAÑA "data"
-                    const sheetName = workbook.SheetNames.find(n => n.trim().toLowerCase() === "data");
+                    // FORZAR BUSQUEDA DE LA PESTAÑA "data"
+                    const dataSheet = workbook.SheetNames.find(n => n.trim().toLowerCase() === "data");
                     
-                    if(!sheetName) {
-                        status.innerText = "❌ ERROR: NO SE ENCONTRÓ LA PESTAÑA 'data'";
+                    if(!dataSheet) {
+                        status.innerText = "❌ ERROR: NO EXISTE LA PESTAÑA 'data'";
                         return;
                     }
 
-                    const sheet = workbook.Sheets[sheetName];
-                    const json = XLSX.utils.sheet_to_json(sheet);
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[dataSheet]);
 
                     baseDatos = json.map(row => {
                         return {
@@ -115,13 +118,13 @@
                         };
                     }).filter(f => f.mes !== "" && f.cant > 0);
 
-                    if (!baseDatos.length) throw "Hoja data vacía";
+                    if (baseDatos.length === 0) throw "La hoja data no tiene registros válidos";
 
-                    localStorage.setItem('distrileco_v11_data', JSON.stringify(baseDatos));
-                    status.innerText = `✅ ÉXITO: ${baseDatos.length} REGISTROS DE 'data'`;
+                    localStorage.setItem('distrileco_v12_exclusive', JSON.stringify(baseDatos));
+                    status.innerText = `✅ ÉXITO: ${baseDatos.length} LÍNEAS DE DATA`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR AL PROCESAR LA PESTAÑA 'data'";
+                    status.innerText = "❌ ERROR AL PROCESAR PESTAÑA DATA";
                     console.error(err);
                 }
             };
@@ -173,7 +176,7 @@
                 }
             });
 
-            document.getElementById('totalDisplay').innerText = totalK.toLocaleString('es-CO') + " Kg";
+            document.getElementById('totalDisplay').innerText = totalK.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
             const mv = Object.entries(rV).sort((a,b) => b[1]-a[1])[0];
             const mc = Object.entries(rC).sort((a,b) => b[1]-a[1])[0];
             document.getElementById('mejorVendedor').innerText = `Vendedor: ${mv ? mv[0] : '---'}`;
@@ -186,13 +189,13 @@
             if(chartKilos) chartKilos.destroy();
             chartKilos = new Chart(document.getElementById('miGrafico'), {
                 type: 'bar',
-                data: { labels: Object.keys(dK).sort(), datasets: [{ label: 'Kilos', data: Object.values(dK), backgroundColor: '#1e40af' }] }
+                data: { labels: Object.keys(dK).sort(), datasets: [{ label: 'Kilos', data: Object.values(dK), backgroundColor: '#1e40af', borderRadius: 8 }] }
             });
             if(chartUnidades) chartUnidades.destroy();
             const top = Object.entries(dU).sort((a,b) => b[1]-a[1]).slice(0,8);
             chartUnidades = new Chart(document.getElementById('graficoUnidades'), {
                 type: 'bar',
-                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Cantidades', data: top.map(x => x[1]), backgroundColor: '#10b981' }] },
+                data: { labels: top.map(x => x[0]), datasets: [{ label: 'Cant', data: top.map(x => x[1]), backgroundColor: '#10b981', borderRadius: 5 }] },
                 options: { indexAxis: 'y' }
             });
         }
@@ -201,9 +204,14 @@
 
         function enviarWhatsApp() {
             const t = document.getElementById('totalDisplay').innerText;
-            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso: ${t}\n\nHecho por Vibras Positivas HM`;
+            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso Despachado: ${t}\n\nHecho por Vibras Positivas HM`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
         }
     </script>
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </body>
 </html>
