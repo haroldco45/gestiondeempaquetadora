@@ -19,12 +19,12 @@
     <main class="p-4 max-w-6xl mx-auto space-y-6">
         
         <div class="bg-white p-6 rounded-3xl shadow-md border-2 border-dashed border-blue-400 text-center">
-            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 1. CARGAR EXCEL (INCLUYE COLUMNA REFERENCIA)</p>
+            <p class="text-blue-900 font-bold mb-3 uppercase text-[10px]">📂 CARGAR EXCEL (Detectando Columna C: Referencia)</p>
             <input type="file" id="upload" accept=".xlsx, .xls, .csv" class="mx-auto block text-sm text-gray-500 file:mr-4 file:py-2 file:px-8 file:rounded-full file:border-0 file:bg-blue-700 file:text-white font-bold cursor-pointer transition-all hover:bg-blue-800">
             <div class="flex justify-center gap-6 mt-4">
                 <p id="status" class="text-[10px] font-black text-blue-600 italic uppercase bg-blue-50 p-2 rounded-lg">ESPERANDO ARCHIVO...</p>
                 <button onclick="borrarTodo()" class="bg-red-100 text-red-600 text-[10px] px-4 py-2 rounded-full font-black hover:bg-red-200 transition-all uppercase italic">
-                    <i class="fas fa-trash-alt mr-1"></i> Limpieza Profunda
+                    <i class="fas fa-trash-alt mr-1"></i> Limpieza de Memoria
                 </button>
             </div>
         </div>
@@ -38,10 +38,10 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-blue-800 uppercase italic">Meses (Ctrl + Clic)</label>
-                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none focus:border-blue-500 shadow-inner"></select>
+                    <select id="selMes" multiple onchange="calcular()" class="w-full p-2 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold text-xs h-40 outline-none shadow-inner"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase">Referencia / Producto</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase">Ref - Producto</label>
                     <select id="selProducto" onchange="calcular()" class="w-full p-2 bg-gray-50 rounded-xl font-bold text-xs outline-none border border-gray-100"></select>
                 </div>
                 <button onclick="enviarWhatsApp()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:bg-emerald-700 transition-all uppercase text-[11px] mt-4">
@@ -58,8 +58,8 @@
                     <div class="bg-white p-6 rounded-[2rem] shadow-xl border-l-8 border-emerald-500 flex flex-col justify-center">
                         <h4 class="text-[11px] font-black text-emerald-700 uppercase mb-2 italic tracking-tighter">Métricas Clave:</h4>
                         <div id="analisisNotas" class="text-xs space-y-1 font-bold text-gray-600 italic uppercase">
-                            <p id="mejorVendedor">---</p>
-                            <p id="mejorCiudad">---</p>
+                            <p id="mejorVendedor">Vendedor: ---</p>
+                            <p id="mejorCiudad">Ciudad: ---</p>
                         </div>
                     </div>
                 </div>
@@ -87,10 +87,10 @@
         let chartUnidades = null;
 
         window.onload = () => {
-            const saved = localStorage.getItem('distrileco_v4_full');
+            const saved = localStorage.getItem('distrileco_v5_full');
             if(saved) {
                 baseDatos = JSON.parse(saved);
-                document.getElementById('status').innerText = "✅ DATOS EN MEMORIA";
+                document.getElementById('status').innerText = "✅ MEMORIA CARGADA";
                 activarDashboard();
             }
         };
@@ -106,32 +106,38 @@
             reader.onload = (evt) => {
                 try {
                     const data = evt.target.result;
-                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
                     const firstSheet = workbook.SheetNames[0];
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: "" });
 
                     baseDatos = json.map(row => {
-                        let obj = {};
+                        let obj = { mes: "", vendedor: "", referencia: "", producto_base: "", cantidad: 0, peso: 0, ciudad: "" };
+                        
                         for (let key in row) {
                             let cleanKey = key.toString().toLowerCase().trim().replace(/[^a-z_]/g, '');
-                            if (cleanKey === "mes") obj.mes = row[key];
-                            if (cleanKey === "nomvendedor" || cleanKey === "vendedor") obj.vendedor = row[key];
-                            if (cleanKey === "referencia") obj.referencia = row[key].toString().trim();
-                            if (cleanKey === "nombre_producto" || cleanKey === "producto") obj.producto_base = row[key];
-                            if (cleanKey === "cantidad") obj.cantidad = parseFloat(row[key]) || 0;
-                            if (cleanKey === "peso") obj.peso = parseFloat(row[key]) || 0;
-                            if (cleanKey === "ciudad") obj.ciudad = row[key];
-                        }
-                        // Creamos el nombre completo usando la columna Referencia
-                        obj.producto = (obj.referencia ? obj.referencia + " - " : "") + (obj.producto_base || "");
-                        return obj;
-                    }).filter(item => item.mes);
+                            let value = row[key];
 
-                    localStorage.setItem('distrileco_v4_full', JSON.stringify(baseDatos));
+                            if (cleanKey === "mes") obj.mes = value.toString().trim();
+                            if (cleanKey === "nomvendedor" || cleanKey === "vendedor") obj.vendedor = value.toString().trim();
+                            if (cleanKey === "referencia") obj.referencia = value.toString().trim();
+                            if (cleanKey === "nombre_producto" || cleanKey === "producto") obj.producto_base = value.toString().trim();
+                            if (cleanKey === "cantidad") obj.cantidad = parseFloat(value) || 0;
+                            if (cleanKey === "peso") obj.peso = parseFloat(value) || 0;
+                            if (cleanKey === "ciudad") obj.ciudad = value.toString().trim();
+                        }
+                        
+                        // Combinación robusta de nombre
+                        obj.producto = (obj.referencia ? obj.referencia + " - " : "") + (obj.producto_base || "S.N");
+                        return obj;
+                    }).filter(item => item.mes !== "" && item.cantidad !== 0);
+
+                    if (baseDatos.length === 0) throw "No se encontraron datos válidos";
+
+                    localStorage.setItem('distrileco_v5_full', JSON.stringify(baseDatos));
                     status.innerText = `✅ ${baseDatos.length} REGISTROS CARGADOS`;
                     activarDashboard();
                 } catch (err) {
-                    status.innerText = "❌ ERROR: VERIFICA EL FORMATO";
+                    status.innerText = "❌ ERROR: VERIFICA EL EXCEL";
                     console.error(err);
                 }
             };
@@ -148,11 +154,11 @@
             const vSet = new Set(['-- TODOS --']), mSet = new Set(), pSet = new Set(['-- TODOS --']);
             baseDatos.forEach(d => {
                 if(d.vendedor) vSet.add(d.vendedor);
-                if(d.mes) mSet.add(d.mes.toString());
+                if(d.mes) mSet.add(d.mes);
                 if(d.producto) pSet.add(d.producto);
             });
             poblarSelect('selVendedor', [...vSet].sort());
-            poblarSelect('selMes', [...mSet].sort(), true);
+            poblarSelect('selMes', [...mSet].sort().reverse(), true);
             poblarSelect('selProducto', [...pSet].sort());
         }
 
@@ -176,7 +182,7 @@
             baseDatos.forEach(d => {
                 const matchV = (vend === '-- TODOS --' || d.vendedor === vend);
                 const matchP = (prod === '-- TODOS --' || d.producto === prod);
-                const matchM = meses.includes(d.mes?.toString());
+                const matchM = meses.includes(d.mes);
 
                 if(matchV && matchP && matchM) {
                     const kilos = d.cantidad * d.peso;
@@ -188,11 +194,13 @@
                 }
             });
 
-            document.getElementById('totalDisplay').innerText = totalKilos.toLocaleString('es-CO') + " Kg";
+            document.getElementById('totalDisplay').innerText = totalKilos.toLocaleString('es-CO', {minimumFractionDigits: 1}) + " Kg";
+            
             const bestV = Object.entries(rankVend).sort((a,b) => b[1]-a[1])[0];
             const bestC = Object.entries(rankCiu).sort((a,b) => b[1]-a[1])[0];
-            document.getElementById('mejorVendedor').innerText = bestV ? `ESTRELLA: ${bestV[0]}` : "---";
-            document.getElementById('mejorCiudad').innerText = bestC ? `LÍDER: ${bestC[0]}` : "---";
+
+            document.getElementById('mejorVendedor').innerText = bestV ? `VENDEDOR: ${bestV[0]}` : "VENDEDOR: ---";
+            document.getElementById('mejorCiudad').innerText = bestC ? `CIUDAD: ${bestC[0]}` : "CIUDAD: ---";
 
             renderCharts(histKilos, topProd);
         }
@@ -200,19 +208,20 @@
         function renderCharts(kData, pData) {
             const ctxK = document.getElementById('miGrafico').getContext('2d');
             if(chartKilos) chartKilos.destroy();
+            const sortedMeses = Object.keys(kData).sort();
             chartKilos = new Chart(ctxK, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(kData).sort(),
-                    datasets: [{ label: 'Kilos', data: Object.keys(kData).sort().map(k => kData[k]), backgroundColor: '#1e40af', borderRadius: 10 }]
+                    labels: sortedMeses,
+                    datasets: [{ label: 'Kilos', data: sortedMeses.map(k => kData[k]), backgroundColor: '#1e40af', borderRadius: 8 }]
                 },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
 
-            const ctxP = document.getElementById('graficoUnidades').getContext('2d');
+            const ctxU = document.getElementById('graficoUnidades').getContext('2d');
             if(chartUnidades) chartUnidades.destroy();
             const top8 = Object.entries(pData).sort((a,b) => b[1]-a[1]).slice(0,8);
-            chartUnidades = new Chart(ctxP, {
+            chartUnidades = new Chart(ctxU, {
                 type: 'bar',
                 data: {
                     labels: top8.map(x => x[0]),
@@ -223,7 +232,7 @@
         }
 
         function borrarTodo() {
-            if(confirm("¿Deseas limpiar toda la memoria?")) {
+            if(confirm("¿Limpiar todos los datos cargados?")) {
                 localStorage.clear();
                 location.reload();
             }
@@ -231,13 +240,13 @@
 
         function enviarWhatsApp() {
             const peso = document.getElementById('totalDisplay').innerText;
-            const texto = `⭐ REPORTE VIBRAS POSITIVAS HM ⭐\n--------------------------\nDISTRILECO CAUCASIA\nResumen de Despacho: ${peso}\n--------------------------\nControlado con éxito.`;
+            const texto = `🍚 REPORTE DISTRILECO\n--------------------------\n📊 Peso Despachado: ${peso}\n\nApp por: Vibras Positivas HM`;
             window.open(`https://wa.me/3117700431?text=${encodeURIComponent(texto)}`, '_blank');
         }
     </script>
 
     <style>
-        .animate-fade-in { animation: fadeIn 0.5s ease-in; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </body>
