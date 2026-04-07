@@ -103,7 +103,6 @@
                     const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { range: 1 });
 
                     baseDatos = json.map(item => {
-                        // Buscador flexible de columnas
                         let d = { mes: "", vendedor: "", ref: "", prod: "", cant: 0, peso: 0, ciudad: "" };
                         Object.keys(item).forEach(key => {
                             let k = key.toLowerCase().trim();
@@ -205,8 +204,16 @@
 
         function enviarWhatsApp() {
             const t = document.getElementById('totalDisplay').innerText;
-            const txt = `🍚 REPORTE DISTRILECO\n📊 Peso Total: ${t}\nHecho por Vibras Positivas HM`;
-            window.open(`https://wa.me/3117700431?text=${encodeURIComponent(txt)}`, '_blank');
+            const mv = document.getElementById('mejorVendedor').innerText;
+            const mc = document.getElementById('mejorCiudad').innerText;
+            
+            const mensaje = `🍚 REPORTE DISTRILECO\n` +
+                            `📊 Peso Total: ${t}\n` +
+                            `${mv}\n` +
+                            `${mc}\n\n` +
+                            `App desarrollada por Vibras Positivas HM Derechos de Autor`;
+            
+            window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
     </script>
 </body>
